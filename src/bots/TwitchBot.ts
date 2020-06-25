@@ -18,7 +18,7 @@ const tmiOptions: Options = {
   },
 };
 
-class TwitchBot extends IBot {
+export default class TwitchBot extends IBot {
   private tmiClient: Client;
 
   constructor() {
