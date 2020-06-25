@@ -26,6 +26,7 @@
     "dotenv": "^8.2.0",
     "mongoose-sanitizer": "^1.0.0",
     "mongose": "^0.0.2-security",
+    "node-schedule": "^1.3.2",
     "tmi.js": "^1.5.0",
     "winston": "^3.3.3",
     "winston-daily-rotate-file": "^4.5.0"
