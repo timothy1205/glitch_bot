@@ -27,7 +27,7 @@ class TwitchBot extends IBot {
     this.tmiClient = Client(tmiOptions);
   }
 
-  public sendChanelMessage(channel: string, msg: string): void {
+  public sendChanelMessage(msg: string, channel: string): void {
     this.tmiClient.say(channel, msg);
   }
 
