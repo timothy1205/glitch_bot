@@ -1,13 +1,13 @@
-import ICommandHandler from "./ICommandHandler";
-import IUser from "./IUser";
+import CommandHandler from "./CommandHandler";
+import User from "./User";
 
 export default abstract class IBot {
-  private commandHandler: ICommandHandler | null = null;
+  private commandHandler: CommandHandler | null = null;
 
   public abstract sendChanelMessage(channel: string, msg: string): void;
-  public abstract privateMessage(user: IUser, msg: string): void;
+  public abstract privateMessage(user: User, msg: string): void;
 
-  public setCommandHandler(commandHandler: ICommandHandler) {
+  public setCommandHandler(commandHandler: CommandHandler) {
     this.commandHandler = commandHandler;
   }
 

@@ -1,6 +1,6 @@
-import { Permission } from "./ICommandHandler";
+import { Permission } from "./CommandHandler";
 
-export default abstract class IUser {
+export default abstract class User {
   private permission: Permission;
 
   constructor(permission: Permission) {

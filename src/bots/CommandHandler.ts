@@ -1,4 +1,4 @@
-import IUser from "./IUser";
+import User from "./User";
 
 export enum Permission {
   OWNER,
@@ -17,7 +17,7 @@ export enum CommandArguments {
 }
 
 interface Callback {
-  (caller: IUser, data?: any[]): void;
+  (caller: User, data?: any[]): void;
 }
 
 interface Command {
@@ -26,7 +26,7 @@ interface Command {
   callback: Callback;
 }
 
-export default abstract class ICommandHandler {
+export default abstract class CommandHandler {
   // Aliases already registered as a command, statically or otherwise.
   private static reservedAliases: Set<string>;
 
@@ -58,20 +58,20 @@ export default abstract class ICommandHandler {
     let command: Command = { permission, args, callback };
 
     aliases.forEach((alias) => {
-      if (ICommandHandler.isReservedAlias(alias)) {
+      if (CommandHandler.isReservedAlias(alias)) {
         // Duplicate command hardcoded in bot
         // TODO: Implement logger with error method that terminates application
       }
 
       // Add alias
-      ICommandHandler.addReserveredAlias(alias);
+      CommandHandler.addReserveredAlias(alias);
 
       // Store command
       this.commandMap.set(alias, command);
     });
   }
 
-  public hasPermission(user: IUser, alias: string) {
+  public hasPermission(user: User, alias: string) {
     let command = this.commandMap.get(alias);
     return command && command.permission > user.getPermission();
   }
