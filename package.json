@@ -1,0 +1,39 @@
+{
+  "name": "glitch_bot",
+  "version": "0.0.1",
+  "main": "dist/main.js",
+  "author": "timothy1205",
+  "license": "MIT",
+  "scripts": {
+    "dev": "nodemon -e ts --exec \"yarn build && node ./dist/main.js\"",
+    "test": "mocha",
+    "build": "tsc"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      ".git",
+      "node_modules"
+    ],
+    "watch": [
+      "src"
+    ],
+    "exec": "npm start",
+    "ext": "ts"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "mongoose-sanitizer": "^1.0.0",
+    "mongose": "^0.0.2-security",
+    "tmi.js": "^1.5.0"
+  },
+  "devDependencies": {
+    "@types/mongoose": "^5.7.27",
+    "@types/tmi.js": "^1.4.0",
+    "mocha": "^8.0.1",
+    "nodemon": "^2.0.4",
+    "source-map-support": "^0.5.19",
+    "typescript": "^3.9.5"
+  }
+}
