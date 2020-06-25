@@ -30,7 +30,8 @@ class TwitchBot extends IBot {
   public sendChanelMessage(channel: string, msg: string): void {
     this.tmiClient.say(channel, msg);
   }
+
   public privateMessage(user: User, msg: string): void {
-    this.tmiClient.whisper();
+    this.tmiClient.whisper(user.getUsername(), msg);
   }
 }
