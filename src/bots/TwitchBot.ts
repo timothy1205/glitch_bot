@@ -5,7 +5,7 @@ import User from "./User";
 const tmiOptions: Options = {
   identity: {
     username: process.env.TWITCH_USERNAME,
-    password: process.env.TWITCH_OAUTH_TOKEN,
+    password: process.env.TMI_OAUTH_TOKEN,
   },
   channels: process.env.TWITCH_WORKING_CHANNEL
     ? [process.env.TWITCH_WORKING_CHANNEL]
@@ -35,5 +35,9 @@ export default class TwitchBot extends IBot {
 
   public privateMessage(user: User, msg: string): void {
     this.tmiClient.whisper(user.getUsername(), msg);
+  }
+
+  public connect() {
+    return this.tmiClient.connect();
   }
 }
