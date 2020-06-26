@@ -58,7 +58,7 @@ export default class CommandHandler {
     let command: Command = { permission, args, callback };
 
     aliases.forEach((alias) => {
-      if (CommandHandler.isReservedAlias(alias)) {
+      if (this.commandMap.has(alias)) {
         // Duplicate command hardcoded in bot
         // TODO: Implement logger with error method that terminates application
       }
