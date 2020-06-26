@@ -33,6 +33,9 @@ export default abstract class ICommandHandler {
   private commandPrefix: string = "!";
   private commandMap: Map<string, Command> = new Map();
 
+  // Return True to cancel registration abortion
+  public abstract onFailedRegister(alias: string): boolean | void;
+
   public static getReservedAliases() {
     return this.reservedAliases.keys();
   }
@@ -60,7 +63,9 @@ export default abstract class ICommandHandler {
     aliases.forEach((alias) => {
       if (this.commandMap.has(alias)) {
         // Duplicate command hardcoded in bot
-        // TODO: Implement logger with error method that terminates application
+        if (!this.onFailedRegister(alias)) {
+          return;
+        }
       }
 
       // Add alias
