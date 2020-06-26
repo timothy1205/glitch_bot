@@ -26,7 +26,7 @@ interface Command {
   callback: Callback;
 }
 
-export default abstract class CommandHandler {
+export default class CommandHandler {
   // Aliases already registered as a command, statically or otherwise.
   private static reservedAliases: Set<string>;
 
