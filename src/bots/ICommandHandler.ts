@@ -26,7 +26,7 @@ interface Command {
   callback: Callback;
 }
 
-export default class CommandHandler {
+export default abstract class ICommandHandler {
   // Aliases already registered as a command, statically or otherwise.
   private static reservedAliases: Set<string>;
 
@@ -64,7 +64,7 @@ export default class CommandHandler {
       }
 
       // Add alias
-      CommandHandler.addReserveredAlias(alias);
+      ICommandHandler.addReserveredAlias(alias);
 
       // Store command
       this.commandMap.set(alias, command);
