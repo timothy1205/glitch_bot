@@ -1,6 +1,7 @@
 import { Client, Options } from "tmi.js";
 import IBot from "./IBot";
 import User from "./User";
+import { twitchBotLogger } from "../Logger";
 
 const tmiOptions: Options = {
   identity: {
@@ -38,6 +39,16 @@ export default class TwitchBot extends IBot {
   }
 
   public connect() {
-    return this.tmiClient.connect();
+    let promise = this.tmiClient.connect();
+
+    promise
+      .then(([server, port]) => {
+        twitchBotLogger.info(`Successfully connected to ${server}:${port}`);
+      })
+      .catch((err) => {
+        twitchBotLogger.warn(`Failed to connect to a server`);
+      });
+
+    return promise;
   }
 }
