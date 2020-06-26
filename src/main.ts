@@ -5,4 +5,8 @@ const path = require("path");
 // Setup environmental variables
 require("dotenv").config({ path: path.join(path.dirname(__dirname), ".env") });
 
-// Start chat bot client
+import TwitchBot from "./bots/TwitchBot";
+
+// Start twitch chat bot client
+const twitchBot = new TwitchBot();
+twitchBot.connect();
