@@ -1,13 +1,10 @@
 import { Permission } from "./CommandHandler";
 
 export default class User {
-  private permission: Permission;
-  private username: string;
+  private permission: Permission = Permission.USER;
+  private username: string = "";
 
-  constructor(username: string, permission: Permission) {
-    this.permission = permission;
-    this.username = username;
-  }
+  constructor() {}
 
   public getPermission() {
     return this.permission;
@@ -15,6 +12,7 @@ export default class User {
 
   public setPermission(permission: Permission) {
     this.permission = permission;
+    return this;
   }
 
   public getUsername() {
@@ -23,5 +21,6 @@ export default class User {
 
   public setUsername(username: string) {
     this.username = username;
+    return this;
   }
 }
