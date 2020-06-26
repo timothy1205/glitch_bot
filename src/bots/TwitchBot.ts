@@ -28,14 +28,36 @@ export default class TwitchBot extends IBot {
     this.tmiClient = Client(tmiOptions);
   }
 
-  public sendChannelMessage(msg: string, channel?: string): void {
+  public sendChannelMessage(msg: string, channel?: string): Promise<any> {
     if (!channel) channel = process.env.TWITCH_WORKING_CHANNEL || "";
 
-    this.tmiClient.say(channel, msg);
+    let promise = this.tmiClient.say(channel, msg);
+
+    promise
+      .then(() => {
+        twitchBotLogger.info(`Sending message to #${channel}: ${msg}`);
+      })
+      .catch((err) => {
+        twitchBotLogger.warn(`Failed to send message to #${channel}: ${msg}`);
+      });
+
+    return promise;
   }
 
-  public privateMessage(user: User, msg: string): void {
-    this.tmiClient.whisper(user.getUsername(), msg);
+  public privateMessage(user: User, msg: string): Promise<any> {
+    const username = user.getUsername();
+
+    let promise = this.tmiClient.whisper(username, msg);
+
+    promise
+      .then(() => {
+        twitchBotLogger.info(`Sending whisper to #${username}: ${msg}`);
+      })
+      .catch((err) => {
+        twitchBotLogger.warn(`Failed to send whisper to #${username}: ${msg}`);
+      });
+
+    return promise;
   }
 
   public connect() {
