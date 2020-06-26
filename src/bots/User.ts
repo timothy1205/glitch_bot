@@ -4,8 +4,9 @@ export default abstract class User {
   private permission: Permission;
   private username: string;
 
-  constructor(permission: Permission) {
+  constructor(username: string, permission: Permission) {
     this.permission = permission;
+    this.username = username;
   }
 
   public getPermission() {
