@@ -17,3 +17,5 @@ const logger = winston.createLogger({
   ),
   transports: [new winston.transports.Console(), dailyRotateTransport],
 });
+
+export default logger;
