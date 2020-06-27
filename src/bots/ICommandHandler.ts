@@ -36,6 +36,19 @@ export default abstract class ICommandHandler {
   // Return True to cancel registration abortion
   protected abstract onFailedRegister(alias: string): boolean | void;
 
+  // Return True to halt message interpretation, ran before determining if message is a command
+  protected abstract onMessage(user: User, channel: string, msg: string): boolean | void;
+
+  // Return True to halt message interpretation, ran after determining message is not a command
+  protected abstract onNormalMessage(user: User, channel: string, msg: string): boolean | void;
+
+  // Return True to halt message interpretation, ran after determining message is a command
+  protected abstract onCommand(
+    user: User,
+    channel: string,
+    alias: string,
+    msg: string
+  ): boolean | void;
   public static getReservedAliases() {
     return this.reservedAliases.keys();
   }
