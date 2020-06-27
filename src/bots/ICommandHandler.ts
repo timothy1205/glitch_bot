@@ -34,7 +34,7 @@ export default abstract class ICommandHandler {
   private commandMap: Map<string, Command> = new Map();
 
   // Return True to cancel registration abortion
-  public abstract onFailedRegister(alias: string): boolean | void;
+  protected abstract onFailedRegister(alias: string): boolean | void;
 
   public static getReservedAliases() {
     return this.reservedAliases.keys();
