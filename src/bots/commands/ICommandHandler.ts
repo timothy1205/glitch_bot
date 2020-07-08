@@ -1,6 +1,7 @@
-import User from "./User";
+import User from "../User";
 import winston from "winston";
-import IBot from "./IBot";
+import IBot from "../IBot";
+import Command from "./Command";
 
 export enum Permission {
   OWNER,
@@ -10,23 +11,6 @@ export enum Permission {
   SUBSCRIBER,
   FOLLOWER,
   USER,
-}
-
-export enum CommandArguments {
-  STRING,
-  NUMBER,
-  USER,
-}
-
-interface Callback {
-  (caller: User, channel: string, alias: string, data?: any[]): void;
-}
-
-interface Command {
-  permission: Permission;
-  args: CommandArguments[];
-  callback?: Callback;
-  isStatic?: boolean;
 }
 
 export default abstract class ICommandHandler {
@@ -101,15 +85,8 @@ export default abstract class ICommandHandler {
     this.staticMap.delete(alias);
   }
 
-  public registerCommand(
-    aliases: string[],
-    permission: Permission,
-    args: CommandArguments[],
-    callback: Callback
-  ) {
-    let command: Command = { permission, args, callback };
-
-    aliases.forEach((alias) => {
+  public registerCommand(command: Command) {
+    command.getAliases().forEach((alias) => {
       if (this.commandMap.has(alias)) {
         // Duplicate command hardcoded in bot
         if (!this.onFailedRegister(alias)) {
