@@ -113,28 +113,20 @@ export default class CommandHandler {
     let command: Command | undefined;
     let [alias, args] = this.parseMessage(msg);
 
-    if (this.hasPrefix(msg) && (command = this.commandMap.get(alias))) {
-      // Valid command
-      if (this.onCommand(user, channel, alias, msg)) {
-        this.logger.info(
-          `onCommand - Canceling (${channel}, ${user.getUsername()}): ${msg}`
-        );
-        return;
-      }
-
-      if (command.isStatic) {
-        let staticMessage = CommandHandler.getStaticMessage(alias);
-
-        if (staticMessage) {
-          this.bot.sendChannelMessage(staticMessage);
+    if (this.hasPrefix(msg)) {
+      if ((command = this.commandMap.get(alias))) {
+        // Valid command
+        if (this.onCommand(user, channel, alias, msg)) {
+          this.logger.info(
+            `onCommand - Canceling (${channel}, ${user.getUsername()}): ${msg}`
+          );
+          return;
         }
-      } else {
-        // Hard coded command
-        if (command.callback) {
-          // TODO: Parse args into their respetive formats.
-          // Use normal methods for basic types, and an abstract method for 'advanced' types like users
-          command.callback(user, channel, alias, args);
-        }
+
+        // TODO: Parse args into their respetive formats.
+        // Use normal methods for basic types, and an abstract method for 'advanced' types like users
+        command.getCallback()(user, channel, alias, args);
+      } else if ((command = CommandHandler.getStaticCommand(alias))) {
       }
     } else {
       // Normal message
@@ -151,7 +143,7 @@ export default class CommandHandler {
 
   public hasPermission(user: User, alias: string) {
     let command = this.commandMap.get(alias);
-    return command && command.permission > user.getPermission();
+    return command && command.getPermission() > user.getPermission();
   }
 
   private parseMessage(msg: string): [string, string[]] {

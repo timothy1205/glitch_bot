@@ -15,13 +15,13 @@ export default class Command {
   private permission: Permission;
   private aliases: string[];
   private args: CommandArguments[];
-  private callback?: Callback;
+  private callback: Callback;
 
   constructor(data: {
     permission: Permission;
     aliases: string[];
     args: CommandArguments[];
-    callback?: Callback;
+    callback: Callback;
   }) {
     this.permission = data.permission;
     this.aliases = data.aliases;
