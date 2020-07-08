@@ -2,6 +2,7 @@ import User from "../User";
 import winston from "winston";
 import IBot from "../IBot";
 import Command from "./Command";
+import { HardCallback, StaticCallback } from "./Command";
 
 export enum Permission {
   OWNER,
@@ -16,10 +17,10 @@ export enum Permission {
 export default class CommandHandler {
   // Aliases already registered as a command, statically or otherwise.
   private static reservedAliases: Set<string>;
-  private static staticMap: Map<string, string>;
+  private static staticMap: Map<string, Command<StaticCallback>>;
 
   private commandPrefix: string = "!";
-  private commandMap: Map<string, Command> = new Map();
+  private commandMap: Map<string, Command<HardCallback>> = new Map();
   private bot: IBot;
   private logger: winston.Logger;
 
@@ -73,19 +74,46 @@ export default class CommandHandler {
     this.reservedAliases.delete(alias);
   }
 
-  public static getStaticMessage(alias: string) {
+  public static registerStaticCommand(aliases: string[], message: string) {
+    aliases.forEach((alias) => {
+      if (this.isReservedAlias(alias)) return;
+    });
+
+    const command = new Command<StaticCallback>({
+      permission: Permission.USER,
+      aliases: aliases,
+      callback: (bot: IBot, channel: string) => {
+        bot.sendChannelMessage(message, channel);
+      },
+    });
+
+    aliases.forEach((alias) => {
+      this.staticMap.set(alias, command);
+    });
+  }
+
+  public static deleteStaticCommand(
+    commandOrAlias: Command<StaticCallback> | string
+  ) {
+    let command: Command<StaticCallback> | undefined;
+    if (typeof commandOrAlias == "string") {
+      command = this.staticMap.get(commandOrAlias);
+    } else {
+      command = commandOrAlias;
+    }
+
+    if (!command) return;
+
+    this.staticMap.forEach((cmd, alias) => {
+      if (cmd == command) this.staticMap.delete(alias);
+    });
+  }
+
+  public static getStaticCommand(alias: string) {
     return this.staticMap.get(alias);
   }
 
-  public static setStaticMessage(alias: string, msg: string) {
-    this.staticMap.set(alias, msg);
-  }
-
-  public static deleteStaticMessage(alias: string) {
-    this.staticMap.delete(alias);
-  }
-
-  public registerCommand(command: Command) {
+  public registerCommand(command: Command<HardCallback>) {
     command.getAliases().forEach((alias) => {
       if (this.commandMap.has(alias)) {
         // Duplicate command hardcoded in bot
@@ -93,7 +121,9 @@ export default class CommandHandler {
           return;
         }
       }
+    });
 
+    command.getAliases().forEach((alias) => {
       // Add alias
       CommandHandler.addReserveredAlias(alias);
 
@@ -110,12 +140,12 @@ export default class CommandHandler {
       return;
     }
 
-    let command: Command | undefined;
+    let hardCommand: Command<HardCallback> | undefined;
+    let staticCommand: Command<StaticCallback> | undefined;
     let [alias, args] = this.parseMessage(msg);
 
     if (this.hasPrefix(msg)) {
-      if ((command = this.commandMap.get(alias))) {
-        // Valid command
+      if ((hardCommand = this.commandMap.get(alias))) {
         if (this.onCommand(user, channel, alias, msg)) {
           this.logger.info(
             `onCommand - Canceling (${channel}, ${user.getUsername()}): ${msg}`
@@ -125,8 +155,16 @@ export default class CommandHandler {
 
         // TODO: Parse args into their respetive formats.
         // Use normal methods for basic types, and an abstract method for 'advanced' types like users
-        command.getCallback()(user, channel, alias, args);
-      } else if ((command = CommandHandler.getStaticCommand(alias))) {
+        hardCommand.getCallback()(user, channel, alias, args);
+      } else if ((staticCommand = CommandHandler.getStaticCommand(alias))) {
+        if (this.onCommand(user, channel, alias, msg)) {
+          this.logger.info(
+            `onCommand - Canceling (${channel}, ${user.getUsername()}): ${msg}`
+          );
+          return;
+        }
+
+        staticCommand.getCallback()(this.bot, channel);
       }
     } else {
       // Normal message

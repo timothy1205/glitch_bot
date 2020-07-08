@@ -1,5 +1,6 @@
 import { Permission } from "./CommandHandler";
 import User from "../User";
+import IBot from "../IBot";
 
 export enum CommandArguments {
   STRING,
@@ -7,21 +8,25 @@ export enum CommandArguments {
   USER,
 }
 
-interface Callback {
+export interface HardCallback {
   (caller: User, channel: string, alias: string, data?: any[]): void;
 }
 
-export default class Command {
+export interface StaticCallback {
+  (bot: IBot, channel: string): void;
+}
+
+export default class Command<T> {
   private permission: Permission;
   private aliases: string[];
-  private args: CommandArguments[];
-  private callback: Callback;
+  private args?: CommandArguments[];
+  private callback: T;
 
   constructor(data: {
     permission: Permission;
     aliases: string[];
-    args: CommandArguments[];
-    callback: Callback;
+    args?: CommandArguments[];
+    callback: T;
   }) {
     this.permission = data.permission;
     this.aliases = data.aliases;
