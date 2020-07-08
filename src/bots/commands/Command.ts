@@ -1,4 +1,4 @@
-import { Permission } from "./ICommandHandler";
+import { Permission } from "./CommandHandler";
 import User from "../User";
 
 export enum CommandArguments {

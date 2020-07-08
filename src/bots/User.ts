@@ -1,4 +1,4 @@
-import { Permission } from "./commands/ICommandHandler";
+import { Permission } from "./commands/CommandHandler";
 
 export default class User {
   private permission: Permission = Permission.USER;

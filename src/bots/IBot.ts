@@ -1,4 +1,4 @@
-import CommandHandler from "./commands/ICommandHandler";
+import CommandHandler from "./commands/CommandHandler";
 import User from "./User";
 
 export default abstract class IBot {

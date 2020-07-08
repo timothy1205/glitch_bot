@@ -13,7 +13,7 @@ export enum Permission {
   USER,
 }
 
-export default abstract class ICommandHandler {
+export default class CommandHandler {
   // Aliases already registered as a command, statically or otherwise.
   private static reservedAliases: Set<string>;
   private static staticMap: Map<string, string>;
@@ -24,29 +24,29 @@ export default abstract class ICommandHandler {
   private logger: winston.Logger;
 
   // Return True to cancel registration abortion
-  protected abstract onFailedRegister(alias: string): boolean | void;
+  protected onFailedRegister(alias: string): boolean | void {}
 
   // Return True to halt message interpretation, ran before determining if message is a command
-  protected abstract onMessage(
+  protected onMessage(
     user: User,
     channel: string,
     msg: string
-  ): boolean | void;
+  ): boolean | void {}
 
   // Return True to halt message interpretation, ran after determining message is not a command
-  protected abstract onNormalMessage(
+  protected onNormalMessage(
     user: User,
     channel: string,
     msg: string
-  ): boolean | void;
+  ): boolean | void {}
 
   // Return True to halt message interpretation, ran after determining message is a command
-  protected abstract onCommand(
+  protected onCommand(
     user: User,
     channel: string,
     alias: string,
     msg: string
-  ): boolean | void;
+  ): boolean | void {}
 
   constructor(bot: IBot, logger: winston.Logger) {
     this.bot = bot;
@@ -95,7 +95,7 @@ export default abstract class ICommandHandler {
       }
 
       // Add alias
-      ICommandHandler.addReserveredAlias(alias);
+      CommandHandler.addReserveredAlias(alias);
 
       // Store command
       this.commandMap.set(alias, command);
@@ -123,7 +123,7 @@ export default abstract class ICommandHandler {
       }
 
       if (command.isStatic) {
-        let staticMessage = ICommandHandler.getStaticMessage(alias);
+        let staticMessage = CommandHandler.getStaticMessage(alias);
 
         if (staticMessage) {
           this.bot.sendChannelMessage(staticMessage);
