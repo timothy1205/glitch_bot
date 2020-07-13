@@ -2,7 +2,8 @@ import User from "../User";
 import winston from "winston";
 import IBot from "../IBot";
 import Command from "./Command";
-import { HardCallback, StaticCallback } from "./Command";
+import { HardCallback, StaticCallback, CommandArguments } from "./Command";
+import { combineArrays } from "../../utils";
 
 export enum Permission {
   OWNER,
@@ -14,6 +15,10 @@ export enum Permission {
   USER,
 }
 
+interface ParserCallback {
+  (original: string): any;
+}
+
 export default class CommandHandler {
   // Aliases already registered as a command, statically or otherwise.
   private static reservedAliases: Set<string>;
@@ -23,6 +28,7 @@ export default class CommandHandler {
   private commandMap: Map<string, Command<HardCallback>> = new Map();
   private bot: IBot;
   private logger: winston.Logger;
+  private parserMap: Map<CommandArguments, ParserCallback> = new Map();
 
   // Return True to cancel registration abortion
   protected onFailedRegister(alias: string): boolean | void {}
@@ -52,6 +58,13 @@ export default class CommandHandler {
   constructor(bot: IBot, logger: winston.Logger) {
     this.bot = bot;
     this.logger = logger;
+
+    this.parserMap.set(CommandArguments.NUMBER, (original) => {
+      const result = parseFloat(original);
+      if (isNaN(result)) throw new TypeError("Expected number, got NaN");
+
+      return result;
+    });
   }
 
   private hasPrefix(msg: string) {
@@ -153,8 +166,19 @@ export default class CommandHandler {
           return;
         }
 
-        // TODO: Parse args into their respetive formats.
-        // Use normal methods for basic types, and an abstract method for 'advanced' types like users
+        const commandArgs = hardCommand.getArgs();
+        if (commandArgs) {
+          try {
+            args = this.parseArguments(commandArgs, args);
+          } catch (e) {
+            if (e instanceof TypeError) {
+              // A parser didn't like it's input
+              // TODO: Reply to user with correct command format
+            } else {
+              throw e;
+            }
+          }
+        }
         hardCommand.getCallback()(user, channel, alias, args);
       } else if ((staticCommand = CommandHandler.getStaticCommand(alias))) {
         if (this.onCommand(user, channel, alias, msg)) {
@@ -184,6 +208,10 @@ export default class CommandHandler {
     return command && command.getPermission() > user.getPermission();
   }
 
+  public registerParser(arg: CommandArguments, callback: ParserCallback) {
+    this.parserMap.set(arg, callback);
+  }
+
   private parseMessage(msg: string): [string, string[]] {
     // Parse command and its arguments entered by user
     const args = (msg.match(/(?:[^\s"]+|"[^"]*")+/g) || []).map((arg) =>
@@ -198,5 +226,19 @@ export default class CommandHandler {
       .substring(this.commandPrefix.length);
 
     return [alias, args];
+  }
+
+  private parseArguments(commandArgs: CommandArguments[], args: string[]) {
+    const combined = combineArrays<CommandArguments, string>(commandArgs, args);
+    const parsed: any = [];
+
+    combined.forEach(({ left, right }) => {
+      let parser;
+      if (left && right && (parser = this.parserMap.get(left))) {
+        parsed.push(parser(right));
+      }
+    });
+
+    return parsed;
   }
 }
