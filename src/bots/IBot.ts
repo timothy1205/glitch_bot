@@ -8,6 +8,13 @@ export default abstract class IBot {
     msg: string,
     channel?: string
   ): Promise<any>;
+
+  public abstract reply(
+    user: User,
+    msg: string,
+    channel?: string
+  ): Promise<any>;
+
   public abstract privateMessage(user: User, msg: string): Promise<any>;
 
   public setCommandHandler(commandHandler: CommandHandler) {
