@@ -213,9 +213,17 @@ export default class CommandHandler {
     }
   }
 
-  public hasPermission(user: User, alias: string) {
-    let command = this.commandMap.get(alias);
-    return command && command.getPermission() > user.getPermission();
+  public hasPermission(
+    user: User,
+    aliasOrCommand: string | Command<HardCallback> | undefined
+  ) {
+    if (typeof aliasOrCommand === "string") {
+      aliasOrCommand = this.commandMap.get(aliasOrCommand);
+    }
+
+    return (
+      aliasOrCommand && aliasOrCommand.getPermission() > user.getPermission()
+    );
   }
 
   public registerParser(arg: CommandArguments, callback: ParserCallback) {
