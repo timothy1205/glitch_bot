@@ -188,7 +188,6 @@ export default class CommandHandler {
           }
         }
 
-        this.onBadArguments(user, channel, alias, msg);
         hardCommand.getCallback()(user, channel, alias, args);
       } else if ((staticCommand = CommandHandler.getStaticCommand(alias))) {
         if (this.onCommand(user, channel, alias, msg)) {
