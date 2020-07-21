@@ -6,7 +6,9 @@ const path = require("path");
 require("dotenv").config({ path: path.join(path.dirname(__dirname), ".env") });
 
 import TwitchBot from "./bots/TwitchBot";
+import TwitchCommandHandler from "./bots/commands/TwitchCommandHandler";
 
 // Start twitch chat bot client
-const twitchBot = new TwitchBot();
+export const twitchBot = new TwitchBot();
+twitchBot.setCommandHandler(new TwitchCommandHandler(twitchBot));
 twitchBot.connect();
