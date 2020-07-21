@@ -55,6 +55,13 @@ export default class CommandHandler {
     msg: string
   ): boolean | void {}
 
+  protected onBadArguments(
+    user: User,
+    channel: string,
+    alias: string,
+    msg: string
+  ): void {}
+
   constructor(bot: IBot, logger: winston.Logger) {
     this.bot = bot;
     this.logger = logger;
@@ -173,7 +180,7 @@ export default class CommandHandler {
           } catch (e) {
             if (e instanceof TypeError) {
               // A parser didn't like it's input
-              // TODO: Reply to user with correct command format
+              this.onBadArguments(user, channel, alias, msg);
             } else {
               throw e;
             }
