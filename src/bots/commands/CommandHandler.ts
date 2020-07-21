@@ -63,6 +63,13 @@ export default class CommandHandler {
     msg: string
   ): void {}
 
+  protected onInsufficientPermission(
+    user: User,
+    channel: string,
+    alias: string,
+    msg: string
+  ): void {}
+
   constructor(bot: IBot, logger: winston.Logger) {
     this.bot = bot;
     this.logger = logger;
@@ -186,6 +193,14 @@ export default class CommandHandler {
               throw e;
             }
           }
+        }
+
+        if (!this.hasPermission(user, hardCommand)) {
+          this.onInsufficientPermission(user, channel, alias, msg);
+          this.logger.info(
+            `onInsufficientPermission - Canceling (${channel}, ${user.getUsername()}): ${msg}`
+          );
+          return;
         }
 
         hardCommand.getCallback()(user, channel, alias, args);
