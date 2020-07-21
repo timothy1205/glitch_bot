@@ -21,8 +21,8 @@ interface ParserCallback {
 
 export default class CommandHandler {
   // Aliases already registered as a command, statically or otherwise.
-  private static reservedAliases: Set<string>;
-  private static staticMap: Map<string, Command<StaticCallback>>;
+  private static reservedAliases: Set<string> = new Set();
+  private static staticMap: Map<string, Command<StaticCallback>> = new Map();
 
   private commandPrefix: string = "!";
   private commandMap: Map<string, Command<HardCallback>> = new Map();
@@ -101,7 +101,7 @@ export default class CommandHandler {
     });
 
     aliases.forEach((alias) => {
-      this.staticMap.set(alias, command);
+      CommandHandler.staticMap.set(alias, command);
     });
   }
 
@@ -110,20 +110,20 @@ export default class CommandHandler {
   ) {
     let command: Command<StaticCallback> | undefined;
     if (typeof commandOrAlias == "string") {
-      command = this.staticMap.get(commandOrAlias);
+      command = CommandHandler.staticMap.get(commandOrAlias);
     } else {
       command = commandOrAlias;
     }
 
     if (!command) return;
 
-    this.staticMap.forEach((cmd, alias) => {
-      if (cmd == command) this.staticMap.delete(alias);
+    CommandHandler.staticMap.forEach((cmd, alias) => {
+      if (cmd == command) CommandHandler.staticMap.delete(alias);
     });
   }
 
   public static getStaticCommand(alias: string) {
-    return this.staticMap.get(alias);
+    return CommandHandler.staticMap.get(alias);
   }
 
   public registerCommand(command: Command<HardCallback>) {
@@ -179,6 +179,7 @@ export default class CommandHandler {
             }
           }
         }
+
         hardCommand.getCallback()(user, channel, alias, args);
       } else if ((staticCommand = CommandHandler.getStaticCommand(alias))) {
         if (this.onCommand(user, channel, alias, msg)) {
