@@ -7,5 +7,3 @@ export default class TwitchCommandHandler extends CommandHandler {
     super(bot, twitchBotLogger);
   }
 }
-
-import "./twitch";

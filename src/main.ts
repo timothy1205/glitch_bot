@@ -12,3 +12,5 @@ import TwitchCommandHandler from "./bots/commands/TwitchCommandHandler";
 export const twitchBot = new TwitchBot();
 twitchBot.setCommandHandler(new TwitchCommandHandler(twitchBot));
 twitchBot.connect();
+
+import "./bots/commands";
