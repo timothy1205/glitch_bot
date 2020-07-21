@@ -21,6 +21,7 @@ interface ParserCallback {
 
 export default class CommandHandler {
   // Aliases already registered as a command, statically or otherwise.
+  // TODO: Replace staticMap and commandMap with a dictionary
   private static reservedAliases: Set<string> = new Set();
   private static staticMap: Map<string, Command<StaticCallback>> = new Map();
 
