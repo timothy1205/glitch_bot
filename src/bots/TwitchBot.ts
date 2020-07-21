@@ -2,6 +2,7 @@ import { Client, Options } from "tmi.js";
 import IBot from "./IBot";
 import User from "./User";
 import { twitchBotLogger } from "../Logger";
+import TwitchUser from "./TwitchUser";
 
 const tmiOptions: Options = {
   identity: {
@@ -27,6 +28,13 @@ export default class TwitchBot extends IBot {
     super();
 
     this.tmiClient = Client(tmiOptions);
+    this.tmiClient.addListener("chat", (channel, userstate, msg, self) => {
+      this.getCommandHandler()?.handleMessage(
+        new TwitchUser(userstate),
+        channel,
+        msg
+      );
+    });
   }
 
   public sendChannelMessage(msg: string, channel?: string): Promise<any> {
