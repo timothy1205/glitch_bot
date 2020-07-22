@@ -187,7 +187,7 @@ export default class CommandHandler {
             args = this.parseArguments(commandArgs, args);
           } catch (e) {
             if (e instanceof TypeError) {
-              // A parser didn't like it's input
+              // A parser didn't like its input
               this.onBadArguments(user, channel, alias, msg);
             } else {
               throw e;
