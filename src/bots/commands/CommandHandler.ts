@@ -2,7 +2,12 @@ import User from "../User";
 import winston from "winston";
 import IBot from "../IBot";
 import Command from "./Command";
-import { HardCallback, StaticCallback, CommandArguments } from "./Command";
+import {
+  HardCallback,
+  StaticCallback,
+  CommandArguments,
+  CommandArgumentWrapper,
+} from "./Command";
 import { combineArrays } from "../../utils";
 
 export enum Permission {
@@ -181,17 +186,15 @@ export default class CommandHandler {
           return;
         }
 
-        const commandArgs = hardCommand.getArgs();
-        if (commandArgs) {
-          try {
-            args = this.parseArguments(commandArgs, args);
-          } catch (e) {
-            if (e instanceof TypeError) {
-              // A parser didn't like its input
-              this.onBadArguments(user, channel, alias, msg);
-            } else {
-              throw e;
-            }
+        try {
+          args = this.parseArguments(hardCommand, args);
+        } catch (e) {
+          if (e instanceof TypeError) {
+            // A parser didn't like its input
+            this.onBadArguments(user, channel, alias, msg);
+            return;
+          } else {
+            throw e;
           }
         }
 
@@ -236,7 +239,7 @@ export default class CommandHandler {
     }
 
     return (
-      aliasOrCommand && aliasOrCommand.getPermission() > user.getPermission()
+      aliasOrCommand && aliasOrCommand.getPermission() >= user.getPermission()
     );
   }
 
@@ -260,18 +263,54 @@ export default class CommandHandler {
     return [alias, args];
   }
 
-  private parseArguments(commandArgs: CommandArguments[], args: string[]) {
-    const combined = combineArrays<CommandArguments, string>(commandArgs, args);
+  private parseArguments(command: Command<HardCallback>, args: string[]) {
+    const commandArgs = command.getArgs();
+    if (!commandArgs) return;
+
+    args = this.handleLastStringArgument(commandArgs, args);
+
+    const combined = combineArrays<CommandArgumentWrapper, string>(
+      commandArgs,
+      args
+    );
     const parsed: any = [];
 
     combined.forEach(({ left, right }) => {
       let parser;
-      if (left && right && (parser = this.parserMap.get(left))) {
-        parsed.push(parser(right));
+      if (left && (parser = this.parserMap.get(left.arg))) {
+        if (!right) {
+          // Empty value for argument
+
+          // Prioceed if optional argument, throw error otherwise
+          if (left.optional) parsed.push(null);
+          else throw new TypeError("No value for required argument");
+        } else parsed.push(parser(right));
       }
     });
 
     return parsed;
+  }
+
+  private handleLastStringArgument(
+    commandArgs: CommandArgumentWrapper[],
+    args: string[]
+  ) {
+    if (
+      commandArgs[commandArgs.length - 1].arg == CommandArguments.STRING &&
+      args.length > commandArgs.length
+    ) {
+      /* Last arg is a string and we recieved more arguments than expected,
+        then all arguments in args past the length commandArgs must be part of that string
+        Ex:
+        [int, int, string]
+        [1,   1,   hello, there] => [1, 1, hello there]
+      */
+
+      // Remove args that are apart of the single string arg, combine it, and insert it back into array
+      args.push(args.splice(commandArgs.length - 1).join(" "));
+    }
+
+    return args;
   }
 
   public getBot() {
