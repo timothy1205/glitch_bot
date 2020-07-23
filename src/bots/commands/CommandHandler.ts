@@ -24,6 +24,8 @@ interface ParserCallback {
   (original: string): any;
 }
 
+const defaultParser: ParserCallback = (original) => original;
+
 export default class CommandHandler {
   // Aliases already registered as a command, statically or otherwise.
   // TODO: Replace staticMap and commandMap with a dictionary
@@ -276,8 +278,9 @@ export default class CommandHandler {
     const parsed: any = [];
 
     combined.forEach(({ left, right }) => {
-      let parser;
-      if (left && (parser = this.parserMap.get(left.arg))) {
+      // If we have a parser, grab it. Otherwise use the defaultParser
+      const parser = (left && this.parserMap.get(left.arg)) || defaultParser;
+      if (left) {
         if (!right) {
           // Empty value for argument
 
