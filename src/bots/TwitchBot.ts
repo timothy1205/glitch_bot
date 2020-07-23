@@ -44,7 +44,7 @@ export default class TwitchBot extends IBot {
   }
 
   public reply(user: User, msg: string, channel?: string): Promise<any> {
-    return this.sendChannelMessage(`@${user.getUsername}, ${msg}`, channel);
+    return this.sendChannelMessage(`@${user.getUsername()}, ${msg}`, channel);
   }
 
   public privateMessage(user: User, msg: string): Promise<any> {
