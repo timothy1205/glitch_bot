@@ -8,6 +8,12 @@ export enum CommandArguments {
   USER,
 }
 
+export interface CommandArgumentWrapper {
+  arg: CommandArguments;
+  name: string;
+  optional?: boolean;
+}
+
 export interface HardCallback {
   (caller: User, channel: string, alias: string, data?: any[]): void;
 }
@@ -19,13 +25,13 @@ export interface StaticCallback {
 export default class Command<T> {
   private permission: Permission;
   private aliases: string[];
-  private args?: CommandArguments[];
+  private args?: CommandArgumentWrapper[];
   private callback: T;
 
   constructor(data: {
     permission: Permission;
     aliases: string[];
-    args?: CommandArguments[];
+    args?: CommandArgumentWrapper[];
     callback: T;
   }) {
     this.permission = data.permission;
