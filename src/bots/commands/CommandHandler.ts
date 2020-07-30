@@ -149,7 +149,8 @@ export default class CommandHandler {
   }
 
   public registerCommand(command: Command<HardCallback>) {
-    command.getAliases().forEach((alias) => {
+    const aliases = command.getAliases();
+    aliases.forEach((alias) => {
       if (this.commandMap.has(alias)) {
         // Duplicate command hardcoded in bot
         if (!this.onFailedRegister(alias)) {
@@ -157,6 +158,27 @@ export default class CommandHandler {
         }
       }
     });
+
+    const args = command.getArgs();
+    let invalidArgs = false;
+    if (args) {
+      let shouldBeOptional = false;
+      args.forEach((arg) => {
+        if (shouldBeOptional && !arg.optional) {
+          this.logger.error(
+            `Invalid argument setup for '${aliases[0]}! Cannot have optional arguments before non-optional arguments'`
+          );
+          invalidArgs = true;
+          this.onFailedRegister(aliases[0]);
+          return;
+        }
+
+        if (arg.optional) shouldBeOptional = true;
+
+        console.log(arg, shouldBeOptional);
+      });
+    }
+    if (invalidArgs) return;
 
     command.getAliases().forEach((alias) => {
       // Add alias
