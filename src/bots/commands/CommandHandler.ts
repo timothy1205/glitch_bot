@@ -30,10 +30,14 @@ export default class CommandHandler {
   // Aliases already registered as a command, statically or otherwise.
   // TODO: Replace staticMap and commandMap with a dictionary
   private static reservedAliases: Set<string> = new Set();
-  private static staticMap: Map<string, Command<StaticCallback>> = new Map();
+  private static staticCommands: {
+    [alias: string]: Command<StaticCallback>;
+  } = {};
 
   private commandPrefix: string = "!";
-  private commandMap: Map<string, Command<HardCallback>> = new Map();
+  private hardCommands: {
+    [alias: string]: Command<HardCallback>;
+  } = {};
   private bot: IBot;
   private logger: winston.Logger;
   private parserMap: Map<CommandArguments, ParserCallback> = new Map();
@@ -123,7 +127,7 @@ export default class CommandHandler {
     });
 
     aliases.forEach((alias) => {
-      CommandHandler.staticMap.set(alias, command);
+      CommandHandler.staticCommands[alias] = command;
     });
   }
 
@@ -132,26 +136,27 @@ export default class CommandHandler {
   ) {
     let command: Command<StaticCallback> | undefined;
     if (typeof commandOrAlias == "string") {
-      command = CommandHandler.staticMap.get(commandOrAlias);
+      command = CommandHandler.staticCommands[commandOrAlias];
     } else {
       command = commandOrAlias;
     }
 
     if (!command) return;
 
-    CommandHandler.staticMap.forEach((cmd, alias) => {
-      if (cmd == command) CommandHandler.staticMap.delete(alias);
-    });
+    for (let alias in CommandHandler.staticCommands) {
+      if (CommandHandler.staticCommands[alias] == command)
+        delete CommandHandler.staticCommands[alias];
+    }
   }
 
   public static getStaticCommand(alias: string) {
-    return CommandHandler.staticMap.get(alias);
+    return CommandHandler.staticCommands[alias];
   }
 
   public registerCommand(command: Command<HardCallback>) {
     const aliases = command.getAliases();
     aliases.forEach((alias) => {
-      if (this.commandMap.has(alias)) {
+      if (this.hardCommands[alias]) {
         // Duplicate command hardcoded in bot
         if (!this.onFailedRegister(alias)) {
           return;
@@ -185,7 +190,7 @@ export default class CommandHandler {
       CommandHandler.addReserveredAlias(alias);
 
       // Store command
-      this.commandMap.set(alias, command);
+      this.hardCommands[alias] = command;
     });
   }
 
@@ -202,7 +207,7 @@ export default class CommandHandler {
     let [alias, args] = this.parseMessage(msg);
 
     if (this.hasPrefix(msg)) {
-      if ((hardCommand = this.commandMap.get(alias))) {
+      if ((hardCommand = this.hardCommands[alias])) {
         if (this.onCommand(user, channel, alias, msg)) {
           this.logger.info(
             `onCommand - Canceling (${channel}, ${user.getUsername()}): ${msg}`
@@ -259,7 +264,7 @@ export default class CommandHandler {
     aliasOrCommand: string | Command<HardCallback> | undefined
   ) {
     if (typeof aliasOrCommand === "string") {
-      aliasOrCommand = this.commandMap.get(aliasOrCommand);
+      aliasOrCommand = this.hardCommands[aliasOrCommand];
     }
 
     return (
