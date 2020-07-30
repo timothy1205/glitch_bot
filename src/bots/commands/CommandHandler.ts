@@ -28,7 +28,6 @@ const defaultParser: ParserCallback = (original) => original;
 
 export default class CommandHandler {
   // Aliases already registered as a command, statically or otherwise.
-  // TODO: Replace staticMap and commandMap with a dictionary
   private static reservedAliases: Set<string> = new Set();
   private static staticCommands: {
     [alias: string]: Command<StaticCallback>;
@@ -72,7 +71,10 @@ export default class CommandHandler {
     channel: string,
     alias: string,
     msg: string
-  ): void {}
+  ): void {
+    const usage = this.getUsageMessage(alias);
+    if (usage) this.bot.reply(user, usage, channel);
+  }
 
   protected onInsufficientPermission(
     user: User,
@@ -345,5 +347,32 @@ export default class CommandHandler {
 
   public getBot() {
     return this.bot;
+  }
+
+  protected getArgTypeAsString(arg: CommandArguments): string {
+    switch (arg) {
+      case CommandArguments.NUMBER:
+        return "num";
+      case CommandArguments.STRING:
+        return "str";
+      case CommandArguments.USER:
+        return "user";
+    }
+
+    return "nil";
+  }
+
+  public getUsageMessage(alias: string) {
+    let command;
+    if ((command = this.hardCommands[alias])) {
+      let str = "Usage: ";
+      command.getArgs()?.forEach((cmd) => {
+        const argStr = `${cmd.name}: ${this.getArgTypeAsString(cmd.arg)}`;
+        if (cmd.optional) str += `[${argStr}] `;
+        else str += `<${argStr}> `;
+      });
+
+      return str;
+    }
   }
 }
