@@ -1,6 +1,7 @@
 // Typescript source mapping
 require("source-map-support").install();
 
+import "./mongo/mongoose";
 import TwitchBot from "./bots/TwitchBot";
 import TwitchCommandHandler from "./bots/commands/TwitchCommandHandler";
 
