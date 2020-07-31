@@ -41,6 +41,10 @@ export default class CommandHandler {
   private static staticCommands: {
     [alias: string]: Command<StaticCallback>;
   } = {};
+  private static defaultCommandQueue: Set<
+    SubCommandContainer | Command<HardCallback>
+  > = new Set();
+  private static commandHandlers: Set<CommandHandler> = new Set();
 
   private commandPrefix: string = "!";
   private hardCommands: {
@@ -77,6 +81,8 @@ export default class CommandHandler {
   constructor(bot: IBot, logger: winston.Logger) {
     this.bot = bot;
     this.logger = logger;
+
+    CommandHandler.commandHandlers.add(this);
 
     this.parserMap.set(CommandArguments.NUMBER, (original) => {
       const result = parseFloat(original);
@@ -144,6 +150,20 @@ export default class CommandHandler {
 
   public static getStaticCommand(alias: string) {
     return CommandHandler.staticCommands[alias];
+  }
+
+  public static queueDefaultCommand(
+    command: SubCommandContainer | Command<HardCallback>
+  ) {
+    CommandHandler.defaultCommandQueue.add(command);
+  }
+
+  public static registerDefaultCommands() {
+    CommandHandler.commandHandlers.forEach((handler) => {
+      CommandHandler.defaultCommandQueue.forEach((cmd) => {
+        handler.registerCommand(cmd);
+      });
+    });
   }
 
   public registerCommand(command: SubCommandContainer | Command<HardCallback>) {
@@ -302,7 +322,7 @@ export default class CommandHandler {
       return;
     }
 
-    command.getCallback()(user, channel, alias, args);
+    command.getCallback()(user, channel, alias, args, this.bot);
   }
 
   private handleSubCommandContainer({

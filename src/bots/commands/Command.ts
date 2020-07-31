@@ -15,7 +15,7 @@ export interface CommandArgumentWrapper {
 }
 
 export interface HardCallback {
-  (caller: User, channel: string, alias: string, data?: any[]): void;
+  (caller: User, channel: string, alias: string, data: any[], bot: IBot): void;
 }
 
 export interface StaticCallback {
