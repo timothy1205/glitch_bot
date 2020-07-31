@@ -7,6 +7,7 @@ import {
   StaticCallback,
   CommandArguments,
   CommandArgumentWrapper,
+  SubCommandContainer,
 } from "./Command";
 import { combineArrays } from "../../utils";
 
@@ -26,6 +27,14 @@ interface ParserCallback {
 
 const defaultParser: ParserCallback = (original) => original;
 
+interface MessageData {
+  user: User;
+  channel: string;
+  msg: string;
+}
+
+type CommandData = MessageData & { alias: string };
+
 export default class CommandHandler {
   // Aliases already registered as a command, statically or otherwise.
   private static reservedAliases: Set<string> = new Set();
@@ -35,7 +44,7 @@ export default class CommandHandler {
 
   private commandPrefix: string = "!";
   private hardCommands: {
-    [alias: string]: Command<HardCallback>;
+    [alias: string]: SubCommandContainer | Command<HardCallback>;
   } = {};
   private bot: IBot;
   private logger: winston.Logger;
@@ -45,43 +54,25 @@ export default class CommandHandler {
   protected onFailedRegister(alias: string): boolean | void {}
 
   // Return True to halt message interpretation, ran before determining if message is a command
-  protected onMessage(
-    user: User,
-    channel: string,
-    msg: string
-  ): boolean | void {}
+  protected onMessage(data: MessageData): boolean | void {}
 
   // Return True to halt message interpretation, ran after determining message is not a command
-  protected onNormalMessage(
-    user: User,
-    channel: string,
-    msg: string
-  ): boolean | void {}
+  protected onNormalMessage(data: MessageData): boolean | void {}
 
   // Return True to halt message interpretation, ran after determining message is a command
-  protected onCommand(
-    user: User,
-    channel: string,
-    alias: string,
-    msg: string
-  ): boolean | void {}
+  protected onCommand(data: CommandData): boolean | void {}
 
-  protected onBadArguments(
-    user: User,
-    channel: string,
-    alias: string,
-    msg: string
-  ): void {
-    const usage = this.getUsageMessage(alias);
+  protected onBadArguments({
+    user,
+    channel,
+    alias,
+    command,
+  }: CommandData & { command: Command<HardCallback> }): void {
+    const usage = this.getUsageMessage(command);
     if (usage) this.bot.reply(user, usage, channel);
   }
 
-  protected onInsufficientPermission(
-    user: User,
-    channel: string,
-    alias: string,
-    msg: string
-  ): void {}
+  protected onInsufficientPermission(data: CommandData): void {}
 
   constructor(bot: IBot, logger: winston.Logger) {
     this.bot = bot;
@@ -155,7 +146,7 @@ export default class CommandHandler {
     return CommandHandler.staticCommands[alias];
   }
 
-  public registerCommand(command: Command<HardCallback>) {
+  public registerCommand(command: SubCommandContainer | Command<HardCallback>) {
     const aliases = command.getAliases();
     aliases.forEach((alias) => {
       if (this.hardCommands[alias]) {
@@ -166,26 +157,36 @@ export default class CommandHandler {
       }
     });
 
-    const args = command.getArgs();
-    let invalidArgs = false;
-    if (args) {
-      let shouldBeOptional = false;
-      args.forEach((arg) => {
-        if (shouldBeOptional && !arg.optional) {
-          this.logger.error(
-            `Invalid argument setup for '${aliases[0]}! Cannot have optional arguments before non-optional arguments'`
-          );
-          invalidArgs = true;
-          this.onFailedRegister(aliases[0]);
-          return;
-        }
+    if (command instanceof Command) {
+      const args = command.getArgs();
+      let invalidArgs = false;
+      if (args) {
+        let shouldBeOptional = false;
+        args.forEach((arg) => {
+          if (shouldBeOptional && !arg.optional) {
+            this.logger.error(
+              `Invalid argument setup for '${aliases[0]}! Cannot have optional arguments before non-optional arguments'`
+            );
+            invalidArgs = true;
+            this.onFailedRegister(aliases[0]);
+            return;
+          }
 
-        if (arg.optional) shouldBeOptional = true;
+          if (arg.optional) shouldBeOptional = true;
 
-        console.log(arg, shouldBeOptional);
-      });
+          console.log(arg, shouldBeOptional);
+        });
+      }
+      if (invalidArgs) return;
+    } else {
+      if (command.getRegistered()) {
+        this.onFailedRegister(aliases[0]);
+        this.logger.error(
+          `The command ${aliases[0]} is already registered and cannot be registered again...`
+        );
+        return;
+      } else command.setRegistered(true);
     }
-    if (invalidArgs) return;
 
     command.getAliases().forEach((alias) => {
       // Add alias
@@ -196,50 +197,41 @@ export default class CommandHandler {
     });
   }
 
-  public handleMessage(user: User, channel: string, msg: string) {
-    if (this.onMessage(user, channel, msg)) {
+  public handleMessage({ user, channel, msg }: MessageData) {
+    if (this.onMessage({ user, channel, msg })) {
       this.logger.info(
         `onMessage - Canceling (${channel}, ${user.getUsername()}): ${msg}`
       );
       return;
     }
 
-    let hardCommand: Command<HardCallback> | undefined;
+    let hardCommand: SubCommandContainer | Command<HardCallback> | undefined;
     let staticCommand: Command<StaticCallback> | undefined;
     let [alias, args] = this.parseMessage(msg);
 
     if (this.hasPrefix(msg)) {
       if ((hardCommand = this.hardCommands[alias])) {
-        if (this.onCommand(user, channel, alias, msg)) {
-          this.logger.info(
-            `onCommand - Canceling (${channel}, ${user.getUsername()}): ${msg}`
-          );
-          return;
+        if (hardCommand instanceof Command) {
+          this.handleCommand({
+            user,
+            channel,
+            msg,
+            alias,
+            args,
+            command: hardCommand,
+          });
+        } else {
+          this.handleSubCommandContainer({
+            user,
+            channel,
+            msg,
+            alias,
+            args,
+            command: hardCommand,
+          });
         }
-
-        try {
-          args = this.parseArguments(hardCommand, args);
-        } catch (e) {
-          if (e instanceof TypeError) {
-            // A parser didn't like its input
-            this.onBadArguments(user, channel, alias, msg);
-            return;
-          } else {
-            throw e;
-          }
-        }
-
-        if (!this.hasPermission(user, hardCommand)) {
-          this.onInsufficientPermission(user, channel, alias, msg);
-          this.logger.info(
-            `onInsufficientPermission - Canceling (${channel}, ${user.getUsername()}): ${msg}`
-          );
-          return;
-        }
-
-        hardCommand.getCallback()(user, channel, alias, args);
       } else if ((staticCommand = CommandHandler.getStaticCommand(alias))) {
-        if (this.onCommand(user, channel, alias, msg)) {
+        if (this.onCommand({ user, channel, alias, msg })) {
           this.logger.info(
             `onCommand - Canceling (${channel}, ${user.getUsername()}): ${msg}`
           );
@@ -252,7 +244,7 @@ export default class CommandHandler {
       // Normal message
 
       // Not sure if I will add anything after this, but just in case...
-      if (this.onNormalMessage(user, channel, msg)) {
+      if (this.onNormalMessage({ user, channel, msg })) {
         this.logger.info(
           `onNormalMessage - Canceling (${channel}, ${user.getUsername()}): ${msg}`
         );
@@ -261,16 +253,119 @@ export default class CommandHandler {
     }
   }
 
+  private handleCommand({
+    user,
+    channel,
+    alias,
+    msg,
+    command,
+    args,
+  }: CommandData & {
+    command: Command<HardCallback>;
+    args: string[];
+  }) {
+    if (this.onCommand({ user, channel, alias, msg })) {
+      this.logger.info(
+        `onCommand - Canceling (${channel}, ${user.getUsername()}): ${msg}`
+      );
+      return;
+    }
+
+    try {
+      args = this.parseArguments(command, args);
+    } catch (e) {
+      if (e instanceof TypeError) {
+        // A parser didn't like its input
+        this.onBadArguments({
+          user,
+          channel,
+          alias,
+          msg,
+          command,
+        });
+        return;
+      } else {
+        throw e;
+      }
+    }
+
+    if (!this.hasPermission(user, command)) {
+      this.onInsufficientPermission({
+        user,
+        channel,
+        alias,
+        msg,
+      });
+      this.logger.info(
+        `onInsufficientPermission - Canceling (${channel}, ${user.getUsername()}): ${msg}`
+      );
+      return;
+    }
+
+    command.getCallback()(user, channel, alias, args);
+  }
+
+  private handleSubCommandContainer({
+    user,
+    channel,
+    alias,
+    msg,
+    command,
+    args,
+  }: CommandData & {
+    command: SubCommandContainer;
+    args: string[];
+  }) {
+    const subCommand = command.getCommands()[args[0]];
+    if (!subCommand) {
+      // No sub command found from arg
+      return;
+    }
+
+    /*
+      Since we found a sub command we need to handle it.
+      If its another SubCommandContainer we will use recursion, 
+      otherwise we will handle the hard command.
+    */
+
+    // Remove first arg since we used it to get here
+    args = args.slice(1);
+    if (subCommand instanceof Command)
+      this.handleCommand({
+        user,
+        channel,
+        alias,
+        msg,
+        args,
+        command: subCommand,
+      });
+    else {
+      this.handleSubCommandContainer({
+        user,
+        channel,
+        alias,
+        msg,
+        args,
+        command: subCommand,
+      });
+    }
+  }
+
   public hasPermission(
     user: User,
-    aliasOrCommand: string | Command<HardCallback> | undefined
+    aliasOrCommand:
+      | string
+      | SubCommandContainer
+      | Command<HardCallback>
+      | undefined
   ) {
     if (typeof aliasOrCommand === "string") {
       aliasOrCommand = this.hardCommands[aliasOrCommand];
     }
 
     return (
-      aliasOrCommand && aliasOrCommand.getPermission() >= user.getPermission()
+      aliasOrCommand instanceof Command &&
+      aliasOrCommand.getPermission() >= user.getPermission()
     );
   }
 
@@ -362,10 +457,14 @@ export default class CommandHandler {
     return "nil";
   }
 
-  public getUsageMessage(alias: string) {
+  public getUsageMessage(aliasOrCommand: string | Command<HardCallback>) {
     let command;
-    if ((command = this.hardCommands[alias])) {
-      let str = "Usage: ";
+
+    if (aliasOrCommand instanceof Command) command = aliasOrCommand;
+    else command = this.hardCommands[aliasOrCommand];
+
+    if (command instanceof Command) {
+      let str = "Args: ";
       command.getArgs()?.forEach((cmd) => {
         const argStr = `${cmd.name}: ${this.getArgTypeAsString(cmd.arg)}`;
         if (cmd.optional) str += `[${argStr}] `;

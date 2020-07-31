@@ -29,11 +29,11 @@ export default class TwitchBot extends IBot {
 
     this.tmiClient = Client(tmiOptions);
     this.tmiClient.addListener("chat", (channel, userstate, msg, self) => {
-      this.getCommandHandler()?.handleMessage(
-        new TwitchUser(userstate),
+      this.getCommandHandler()?.handleMessage({
+        user: new TwitchUser(userstate),
         channel,
-        msg
-      );
+        msg,
+      });
     });
   }
 
