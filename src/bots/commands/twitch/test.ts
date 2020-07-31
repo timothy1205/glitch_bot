@@ -16,8 +16,7 @@ twitchBot.getCommandHandler()?.registerCommand(
       { arg: CommandArguments.STRING, name: "str", optional: true },
     ],
     callback: (caller, channel, alias, data) => {
-      if (data)
-        twitchBot.sendChannelMessage(`Test message: ${data[0]}, ${data[1]}`);
+      twitchBot.sendChannelMessage(`Test message: ${data[0]}, ${data[1]}`);
     },
   })
 );
@@ -45,10 +44,7 @@ twitchBot.getCommandHandler()?.registerCommand(
             { arg: CommandArguments.STRING, name: "str", optional: true },
           ],
           callback: (caller, channel, alias, data) => {
-            if (data)
-              twitchBot.sendChannelMessage(
-                `Succeeded 2: ${data[0]}, ${data[1]}`
-              );
+            twitchBot.sendChannelMessage(`Succeeded 2: ${data[0]}, ${data[1]}`);
           },
         })
       )
