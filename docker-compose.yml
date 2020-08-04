@@ -1,0 +1,22 @@
+version: "3"
+services:
+  bot:
+    build: .
+    command: yarn dev
+    volumes:
+      - .:/glitch_bot
+    links:
+      - mongo
+    depends_on:
+      - mongo
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: development
+      LOG_LEVEL: info
+  mongo:
+    image: mongo
+    volumes:
+      - ./data/db:/data/db
+    ports:
+      - 27017:27017

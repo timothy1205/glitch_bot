@@ -3,4 +3,4 @@ dist
 logs
 *.log
 .env
-docker-compose.yml
+data
