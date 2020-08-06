@@ -35,6 +35,8 @@ interface MessageData {
 
 type CommandData = MessageData & { alias: string };
 
+export class RegisterError extends Error {}
+
 export default class CommandHandler {
   // Aliases already registered as a command, statically or otherwise.
   private static reservedAliases: Set<string> = new Set();
@@ -114,7 +116,8 @@ export default class CommandHandler {
 
   public static registerStaticCommand(aliases: string[], message: string) {
     aliases.forEach((alias) => {
-      if (this.isReservedAlias(alias)) return;
+      if (this.isReservedAlias(alias))
+        throw new RegisterError("duplicate alias");
     });
 
     const command = new Command<StaticCallback>({
@@ -140,7 +143,7 @@ export default class CommandHandler {
       command = commandOrAlias;
     }
 
-    if (!command) return;
+    if (!command) throw new RegisterError("invalid alias");
 
     for (let alias in CommandHandler.staticCommands) {
       if (CommandHandler.staticCommands[alias] == command)

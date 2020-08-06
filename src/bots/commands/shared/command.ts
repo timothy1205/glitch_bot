@@ -1,6 +1,7 @@
 import { SubCommandContainer, CommandArguments } from "../Command";
 import Command from "../Command";
 import CommandHandler, { Permission } from "../CommandHandler";
+import { RegisterError } from "../CommandHandler";
 import {
   setMongoStaticCommand,
   deleteMongoStaticCommand,
@@ -26,8 +27,12 @@ CommandHandler.queueDefaultCommand(
             CommandHandler.registerStaticCommand(aliasArr, message);
             await setMongoStaticCommand(aliasArr, message);
             bot.reply(caller, "successfully registered command!");
-          } catch {
-            bot.reply(caller, "failed to register command!", channel);
+          } catch (error) {
+            if (error instanceof RegisterError) {
+              bot.reply(caller, "failed to register command!", channel);
+            } else {
+              throw error;
+            }
           }
         },
       })
@@ -44,12 +49,16 @@ CommandHandler.queueDefaultCommand(
             CommandHandler.deleteStaticCommand(alias);
             await deleteMongoStaticCommand(alias);
             bot.reply(caller, "successfully removed command!");
-          } catch {
-            bot.reply(
-              caller,
-              "failed to delete command, does it exist?",
-              channel
-            );
+          } catch (error) {
+            if (error instanceof RegisterError) {
+              bot.reply(
+                caller,
+                "failed to delete command, does it exist?",
+                channel
+              );
+            } else {
+              throw error;
+            }
           }
         },
       })
