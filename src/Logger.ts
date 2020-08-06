@@ -12,6 +12,7 @@ let twitchBotDailyTransport = new DailyRotateFile({
 export const twitchBotLogger = winston.createLogger({
   level: process.env.LOG_LEVEL,
   format: winston.format.combine(
+    winston.format.errors({ stack: true }),
     winston.format.timestamp(),
     winston.format.prettyPrint()
   ),
@@ -29,6 +30,7 @@ let mongooseDailyTransport = new DailyRotateFile({
 export const mongooseLogger = winston.createLogger({
   level: process.env.LOG_LEVEL,
   format: winston.format.combine(
+    winston.format.errors({ stack: true }),
     winston.format.timestamp(),
     winston.format.prettyPrint()
   ),
