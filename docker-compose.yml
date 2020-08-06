@@ -1,16 +1,16 @@
 version: "3"
 services:
   bot:
-    build: .
+    build: ./bot
     command: yarn dev
     volumes:
-      - .:/glitch_bot
+      - ./bot:/glitch_bot
     links:
       - mongo
     depends_on:
       - mongo
     env_file:
-      - .env
+      - ./bot/.env
     environment:
       NODE_ENV: development
       LOG_LEVEL: info

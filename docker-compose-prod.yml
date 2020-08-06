@@ -1,13 +1,13 @@
 version: "3"
 services:
   bot:
-    build: .
+    build: ./bot
     links:
       - mongo
     depends_on:
       - mongo
     env_file:
-      - .env
+      - ./bot/.env
     environment:
       NODE_ENV: production
       LOG_LEVEL: info

@@ -1,6 +1,7 @@
-node_modules
-dist
-logs
+bot/node_modules
+bot/dist
+bot/logs
+bot/.env
+
 *.log
-.env
 data
