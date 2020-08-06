@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { mongooseLogger } from "../Logger";
+import { mongooseLogger } from "../logging";
 
 mongoose.connect("mongodb://mongo:27017/glitch_bot", {
   useNewUrlParser: true,

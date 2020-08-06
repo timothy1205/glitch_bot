@@ -1,6 +1,6 @@
 import CommandHandler from "./CommandHandler";
 import IBot from "../IBot";
-import { twitchBotLogger } from "../../Logger";
+import { twitchBotLogger } from "../../logging";
 import User from "../User";
 import { CommandArguments } from "./Command";
 

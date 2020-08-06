@@ -1,7 +1,7 @@
 import { Client, Options } from "tmi.js";
 import IBot from "./IBot";
 import User from "./User";
-import { twitchBotLogger } from "../Logger";
+import { twitchBotLogger } from "../logging";
 import TwitchUser from "./TwitchUser";
 
 const tmiOptions: Options = {
