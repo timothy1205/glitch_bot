@@ -103,7 +103,7 @@ export default class CommandHandler {
   }
 
   public static isReservedAlias(alias: string) {
-    return this.reservedAliases.has(alias);
+    return CommandHandler.reservedAliases.has(alias);
   }
 
   public static addReserveredAlias(alias: string) {
@@ -130,6 +130,7 @@ export default class CommandHandler {
 
     aliases.forEach((alias) => {
       CommandHandler.staticCommands[alias] = command;
+      CommandHandler.addReserveredAlias(alias);
     });
   }
 
@@ -276,7 +277,7 @@ export default class CommandHandler {
     }
   }
 
-  private handleCommand({
+  private async handleCommand({
     user,
     channel,
     alias,
@@ -325,7 +326,15 @@ export default class CommandHandler {
       return;
     }
 
-    command.getCallback()(user, channel, alias, args, this.bot);
+    try {
+      await command.getCallback()(user, channel, alias, args, this.bot);
+    } catch (error) {
+      let str = `Caught error while running '${alias}: '`;
+      if (error instanceof Error) {
+        error.message = str + error.message;
+        this.logger.error(error);
+      } else this.logger.error(str + error.toString());
+    }
   }
 
   private handleSubCommandContainer({
