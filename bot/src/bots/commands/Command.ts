@@ -1,5 +1,5 @@
 import { Permission } from "./CommandHandler";
-import User from "../User";
+import IUser from "../IUser";
 import IBot from "../IBot";
 
 export enum CommandArguments {
@@ -15,7 +15,7 @@ export interface CommandArgumentWrapper {
 }
 
 export interface HardCallback {
-  (caller: User, channel: string, alias: string, data: any[], bot: IBot): void;
+  (caller: IUser, channel: string, alias: string, data: any[], bot: IBot): void;
 }
 
 export interface StaticCallback {

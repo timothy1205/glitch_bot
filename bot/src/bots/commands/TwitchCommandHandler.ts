@@ -1,7 +1,7 @@
 import CommandHandler from "./CommandHandler";
 import IBot from "../IBot";
 import { twitchBotLogger } from "../../logging";
-import User from "../User";
+import IUser from "../IUser";
 import { CommandArguments } from "./Command";
 
 export default class TwitchCommandHandler extends CommandHandler {

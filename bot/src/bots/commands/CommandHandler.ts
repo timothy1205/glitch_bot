@@ -1,4 +1,4 @@
-import User from "../User";
+import IUser from "../IUser";
 import winston from "winston";
 import IBot from "../IBot";
 import Command from "./Command";
@@ -28,7 +28,7 @@ interface ParserCallback {
 const defaultParser: ParserCallback = (original) => original;
 
 interface MessageData {
-  user: User;
+  user: IUser;
   channel: string;
   msg: string;
 }
@@ -384,7 +384,7 @@ export default class CommandHandler {
   }
 
   public hasPermission(
-    user: User,
+    user: IUser,
     aliasOrCommand:
       | string
       | SubCommandContainer

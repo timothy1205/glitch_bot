@@ -1,4 +1,4 @@
-import User from "./User";
+import IUser from "./IUser";
 import { ChatUserstate, Badges } from "tmi.js";
 import { Permission } from "./commands/CommandHandler";
 
@@ -15,7 +15,7 @@ const calculatePerms = (userstate: ChatUserstate) => {
 
   return Permission.USER;
 };
-export default class TwitchUser extends User {
+export default class TwitchUser extends IUser {
   private userstate: ChatUserstate;
 
   constructor(userstate: ChatUserstate) {

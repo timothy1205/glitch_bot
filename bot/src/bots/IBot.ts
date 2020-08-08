@@ -1,5 +1,5 @@
 import CommandHandler from "./commands/CommandHandler";
-import User from "./User";
+import IUser from "./IUser";
 
 export default abstract class IBot {
   private commandHandler: CommandHandler | null = null;
@@ -10,12 +10,12 @@ export default abstract class IBot {
   ): Promise<any>;
 
   public abstract reply(
-    user: User,
+    user: IUser,
     msg: string,
     channel?: string
   ): Promise<any>;
 
-  public abstract privateMessage(user: User, msg: string): Promise<any>;
+  public abstract privateMessage(user: IUser, msg: string): Promise<any>;
 
   public setCommandHandler(commandHandler: CommandHandler) {
     this.commandHandler = commandHandler;
