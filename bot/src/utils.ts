@@ -10,3 +10,9 @@ export function combineArrays<L, R>(leftArray: L[], rightArray: R[]) {
 
   return combined;
 }
+
+export const formatPoints = (points: number) => {
+  return `${points} ${process.env.CURRENCY_NAME || "point"}${
+    points != 1 ? "s" : ""
+  } ${process.env.CURRENCY_EMOJI || ":moneybag:"}`;
+};
