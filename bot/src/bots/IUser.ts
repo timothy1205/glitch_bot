@@ -6,6 +6,8 @@ export default abstract class IUser {
 
   constructor() {}
 
+  public abstract getID(): string | undefined;
+
   public getPermission() {
     return this.permission;
   }

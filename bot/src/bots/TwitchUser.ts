@@ -25,4 +25,8 @@ export default class TwitchUser extends IUser {
     if (userstate.username) this.setUsername(userstate.username);
     this.setPermission(calculatePerms(userstate));
   }
+
+  public getID(): string | undefined {
+    return this.userstate["user-id"];
+  }
 }
