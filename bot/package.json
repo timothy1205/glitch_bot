@@ -27,6 +27,7 @@
     "node-schedule": "^1.3.2",
     "tmi.js": "^1.5.0",
     "ts-mongoose": "^0.0.21",
+    "twitch": "^4.1.3",
     "winston": "^3.3.3",
     "winston-daily-rotate-file": "^4.5.0"
   },
