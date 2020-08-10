@@ -55,3 +55,5 @@ export default class TwitchBot extends IBot {
     return this.tmiClient.connect();
   }
 }
+
+// TODO: Implement tmi.js JOIN and PART events for things like watch time/points.
