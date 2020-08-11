@@ -1,6 +1,7 @@
 import { isBroadcasterLive, getChannelChatters, twitchAPI } from "./twitch_api";
 import { Permission } from "./bots/commands/CommandHandler";
 import { addPoints } from "./mongo/user";
+import { twitchBotLogger } from "./logging";
 
 // TODO: Add commands to blacklist users (bots) from recieving points.
 // Save to mongo and pull all users on startup
@@ -30,26 +31,33 @@ const distributeWatchPoints = async () => {
   const names = (await getChannelChatters()).allChatters;
   if (names.length < 0) return 0;
 
+  const promises: Array<Promise<any>> = [];
   (await twitchAPI.helix.users.getUsersByNames(names)).forEach((user) => {
     // Don't give points to the bot
     if (user.name === process.env.TWITCH_USERNAME) return;
 
-    addPoints({ twitchId: user.id }, watchMultiplier);
+    promises.push(addPoints({ twitchId: user.id }, watchMultiplier));
   });
+
+  return Promise.all(promises);
 };
 
 const distributeChatPoints = () => {
+  const promises: Array<Promise<any>> = [];
   for (const twitchId in chatters) {
-    addPoints(
-      { twitchId },
-      chatMultiplier *
-        chatters[twitchId].points *
-        chatters[twitchId].points *
-        (pointsPerInterval.get(chatters[twitchId].permission) || 1)
+    promises.push(
+      addPoints(
+        { twitchId },
+        chatMultiplier *
+          chatters[twitchId].points *
+          chatters[twitchId].points *
+          (pointsPerInterval.get(chatters[twitchId].permission) || 1)
+      )
     );
   }
 
   chatters = {};
+  return Promise.all(promises);
 };
 
 const getOrCreateChatter = (twitchId: string, permission: Permission) => {
@@ -61,16 +69,19 @@ const getOrCreateChatter = (twitchId: string, permission: Permission) => {
 };
 
 const resetAcknowledgements = () => {
+  twitchBotLogger.info("Resetting acknowledgements...");
   for (const twitchId in chatters) {
     chatters[twitchId].acknowledged = false;
   }
 };
 
 const distributePoints = async () => {
-  if (!(await isBroadcasterLive())) return;
+  if (process.env.NODE_ENV !== "development" && !(await isBroadcasterLive()))
+    return;
 
-  distributeWatchPoints();
-  distributeChatPoints();
+  twitchBotLogger.info("Distributing points...");
+  await distributeWatchPoints();
+  await distributeChatPoints();
 };
 
 let mainTimer: NodeJS.Timeout;
@@ -90,6 +101,7 @@ export const acknowledgeChatter = (
   const chatter = getOrCreateChatter(twitchId, permission);
 
   if (!chatter.acknowledged) {
+    twitchBotLogger.info(`Acknowledging chatter: ${twitchId}, ${permission}`);
     chatter.acknowledged = true;
     chatter.points++;
   }

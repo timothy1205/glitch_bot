@@ -3,6 +3,7 @@ import IBot from "./IBot";
 import IUser from "./IUser";
 import { twitchBotLogger } from "../logging";
 import TwitchUser from "./TwitchUser";
+import { acknowledgeChatter } from "../passive_points";
 
 const tmiOptions: Options = {
   identity: {
@@ -29,11 +30,15 @@ export default class TwitchBot extends IBot {
 
     this.tmiClient = Client(tmiOptions);
     this.tmiClient.addListener("chat", (channel, userstate, msg, self) => {
+      const user = new TwitchUser(userstate);
       this.getCommandHandler()?.handleMessage({
-        user: new TwitchUser(userstate),
+        user,
         channel,
         msg,
       });
+
+      if (userstate["user-id"])
+        acknowledgeChatter(userstate["user-id"], user.getPermission());
     });
   }
 
@@ -55,5 +60,3 @@ export default class TwitchBot extends IBot {
     return this.tmiClient.connect();
   }
 }
-
-// TODO: Implement tmi.js JOIN and PART events for things like watch time/points.
