@@ -18,10 +18,10 @@ if (process.env.NODE_ENV === "development") {
   mongoose.set("debug", function (
     collectionName: string,
     methodName: string,
-    ...methodArgs: string[]
+    ...methodArgs: any[]
   ) {
     mongooseLogger.info(
-      `Mongoose: ${collectionName}.${methodName}(${methodArgs.join(", ")})`
+      `Mongoose: ${collectionName}.${methodName}(${JSON.stringify(methodArgs)})`
     );
   });
 }
