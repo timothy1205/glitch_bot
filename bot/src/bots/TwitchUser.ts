@@ -8,8 +8,7 @@ const calculatePerms = (userstate: ChatUserstate) => {
     else if (userstate.badges.broadcaster === "1")
       return Permission.BROADCASTER;
     else if (userstate.mod) return Permission.MOD;
-    else if ((userstate.badges as Badges & { vip?: string }).vip === "1")
-      return Permission.VIP;
+    else if (userstate.badges.vip === "1") return Permission.VIP;
     else if (userstate.subscriber) return Permission.SUBSCRIBER;
   }
 
