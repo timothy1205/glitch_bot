@@ -13,12 +13,31 @@ CommandHandler.queueDefaultCommand(
     aliases: ["bal", "balance"],
     args: [{ arg: CommandArguments.USER, name: "user", optional: true }],
     callback: async (caller, channel, _alias, data, bot) => {
+      const [user] = data as [string | undefined];
       const id = caller.getID();
       if (!id) return;
 
       let points: number | undefined;
-      if (caller instanceof TwitchUser)
+      if (caller instanceof TwitchUser) {
+        if (user && user.startsWith("@")) {
+          const name = user.substr(1);
+          const helixUser = await twitchAPI.helix.users.getUserByName(name);
+          if (
+            helixUser &&
+            (points = await getPoints({ twitchId: helixUser.id }))
+          ) {
+            bot.reply(
+              caller,
+              `${helixUser.displayName} has ${formatPoints(points)}`
+            );
+          } else {
+            bot.reply(caller, `no points found for ${name}`);
+          }
+          return;
+        }
+
         points = await getPoints({ twitchId: id });
+      }
       // TODO: Setup after making DiscordUser stuff
       // else if (caller instanceof DiscordUser) points = getPoints({ discordId: id});
       else return;
