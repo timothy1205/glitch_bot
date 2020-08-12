@@ -3,7 +3,7 @@ import Command from "../Command";
 import { Permission } from "../CommandHandler";
 import { CommandArguments } from "../Command";
 import TwitchUser from "../../TwitchUser";
-import { getPoints } from "../../../mongo/user";
+import { getPoints, addPoints } from "../../../mongo/user";
 import { formatPoints } from "../../../utils";
 
 CommandHandler.queueDefaultCommand(
@@ -15,15 +15,23 @@ CommandHandler.queueDefaultCommand(
       const id = caller.getID();
       if (!id) return;
 
-      let points: number | null | undefined;
+      let points: number | undefined;
       if (caller instanceof TwitchUser)
         points = await getPoints({ twitchId: id });
       // TODO: Setup after making DiscordUser stuff
       // else if (caller instanceof DiscordUser) points = getPoints({ discordId: id});
       else return;
 
-      if (typeof points === "number")
-        bot.reply(caller, `you have ${formatPoints(points)}`);
+      if (points === undefined) {
+        if (caller instanceof TwitchUser) {
+          const rand = Math.round(Math.random() * 100);
+          addPoints({ twitchId: id }, rand);
+          bot.reply(
+            caller,
+            `no balance found. I'll start you off with ${formatPoints(rand)}`
+          );
+        } else bot.reply(caller, `no balance found!`);
+      } else bot.reply(caller, `you have ${formatPoints(points)}`);
     },
   })
 );
