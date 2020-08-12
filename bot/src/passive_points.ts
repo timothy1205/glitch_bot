@@ -6,7 +6,7 @@ import { twitchBotLogger } from "./logging";
 // TODO: Add commands to blacklist users (bots) from recieving points.
 // Save to mongo and pull all users on startup
 
-const timerInterval = (20 / 60) * 60 * 1000;
+const timerInterval = 20 * 60 * 1000;
 const acknowledgeResetInterval = 5 * 60 * 1000;
 const watchMultiplier = 4;
 const chatMultiplier = 1;
