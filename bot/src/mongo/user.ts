@@ -50,3 +50,7 @@ export const addPoints = async (id: IDTwitchOrDiscord, points: number) => {
   const sum = (current || 0) + points;
   if (sum >= 0) return setPoints(id, sum);
 };
+
+export const getTopPoints = () => {
+  return UserModel.find().sort({ points: -1 });
+};

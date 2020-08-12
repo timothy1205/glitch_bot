@@ -3,8 +3,9 @@ import Command from "../Command";
 import { Permission } from "../CommandHandler";
 import { CommandArguments } from "../Command";
 import TwitchUser from "../../TwitchUser";
-import { getPoints, addPoints } from "../../../mongo/user";
+import { getPoints, addPoints, getTopPoints } from "../../../mongo/user";
 import { formatPoints } from "../../../utils";
+import { twitchAPI } from "../../../twitch_api";
 
 CommandHandler.queueDefaultCommand(
   new Command({
@@ -32,6 +33,29 @@ CommandHandler.queueDefaultCommand(
           );
         } else bot.reply(caller, `no balance found!`);
       } else bot.reply(caller, `you have ${formatPoints(points)}`);
+    },
+  })
+);
+
+CommandHandler.queueDefaultCommand(
+  new Command({
+    permission: Permission.USER,
+    aliases: ["baltop", "balancetop"],
+    callback: async (caller, channel, _alias, data, bot) => {
+      let response = `Top 5 Viewers: `;
+      const users = await getTopPoints();
+      const twitchIds = users.map((user) => user.twitchId);
+      const twitchNames = await (
+        await twitchAPI.helix.users.getUsersByIds(twitchIds)
+      ).map((helixUser) => helixUser.displayName);
+
+      twitchNames.forEach((name, index) => {
+        response += `${name} [${users[index].points || 0}]${
+          index !== twitchNames.length - 1 ? ", " : ""
+        }`;
+      });
+
+      bot.reply(caller, response, channel);
     },
   })
 );
