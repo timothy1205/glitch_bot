@@ -4,6 +4,7 @@ import IUser from "./IUser";
 import { twitchBotLogger } from "../logging";
 import TwitchUser from "./TwitchUser";
 import { acknowledgeChatter } from "../passive_points";
+import twitchCommandHanlder from "./commands/TwitchCommandHandler";
 
 const tmiOptions: Options = {
   identity: {
@@ -22,16 +23,18 @@ const tmiOptions: Options = {
   logger: twitchBotLogger,
 };
 
-export default class TwitchBot extends IBot {
+class TwitchBot extends IBot {
   private tmiClient: Client;
 
   constructor() {
     super();
 
+    this.setCommandHandler(twitchCommandHanlder);
+
     this.tmiClient = Client(tmiOptions);
     this.tmiClient.addListener("chat", (channel, userstate, msg, self) => {
       const user = new TwitchUser(userstate);
-      this.getCommandHandler()?.handleMessage({
+      twitchCommandHanlder.handleMessage({
         user,
         channel,
         msg,
@@ -40,6 +43,8 @@ export default class TwitchBot extends IBot {
       if (userstate["user-id"])
         acknowledgeChatter(userstate["user-id"], user.getPermission());
     });
+
+    this.connect();
   }
 
   public sendChannelMessage(msg: string, channel?: string): Promise<any> {
@@ -60,3 +65,6 @@ export default class TwitchBot extends IBot {
     return this.tmiClient.connect();
   }
 }
+
+const twitchBot = new TwitchBot();
+export default twitchBot;

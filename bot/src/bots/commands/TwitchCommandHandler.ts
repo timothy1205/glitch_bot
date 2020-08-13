@@ -1,12 +1,19 @@
 import CommandHandler from "./CommandHandler";
 import IBot from "../IBot";
 import { twitchBotLogger } from "../../logging";
-import IUser from "../IUser";
 import { CommandArguments } from "./Command";
+import twitchBot from "../TwitchBot";
 
-export default class TwitchCommandHandler extends CommandHandler {
+class TwitchCommandHandler extends CommandHandler {
   constructor(bot: IBot) {
     super(bot, twitchBotLogger);
+
+    this.registerParser(CommandArguments.USER, (original) => {
+      if (!original.startsWith("@"))
+        throw new TypeError("Expected string beginning with @");
+
+      return original.substr(1);
+    });
   }
 
   protected getArgTypeAsString(arg: CommandArguments) {
@@ -15,3 +22,6 @@ export default class TwitchCommandHandler extends CommandHandler {
     return super.getArgTypeAsString(arg);
   }
 }
+
+const twitchCommandHanlder = new TwitchCommandHandler(twitchBot);
+export default twitchCommandHanlder;
