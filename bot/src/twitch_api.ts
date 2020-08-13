@@ -18,3 +18,43 @@ export const getChannelChatters = () => {
     process.env.TWITCH_WORKING_CHANNEL || ""
   );
 };
+
+const getBroadcaster = () => {
+  return twitchAPI.helix.users.getUserByName(
+    process.env.TWITCH_WORKING_CHANNEL || ""
+  );
+};
+
+export const getFollowsByName = async (name: string) => {
+  const userPromise = twitchAPI.helix.users.getUserByName(name);
+  const broadcasterPromise = getBroadcaster();
+
+  const [helixUser, broadcasterHelixUser] = await Promise.all([
+    userPromise,
+    broadcasterPromise,
+  ]);
+
+  if (helixUser && broadcasterHelixUser) {
+    const paginatedFollowUser = await twitchAPI.helix.users.getFollows({
+      user: helixUser,
+      followedUser: broadcasterHelixUser,
+    });
+
+    if (paginatedFollowUser.data.length === 0) return;
+
+    return paginatedFollowUser.data[0];
+  }
+};
+
+export const getFollowsByID = async (twitchId: string) => {
+  const broadcasterHelixUser = await getBroadcaster();
+  if (broadcasterHelixUser) {
+    const paginatedFollowUser = await twitchAPI.helix.users.getFollows({
+      user: twitchId,
+      followedUser: broadcasterHelixUser,
+    });
+    if (paginatedFollowUser.data.length > 0) return;
+
+    return paginatedFollowUser.data[0];
+  }
+};
