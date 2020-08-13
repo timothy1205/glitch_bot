@@ -1,11 +1,17 @@
 import CommandHandler from "../CommandHandler";
 import Command from "../Command";
 import { Permission } from "../CommandHandler";
-import { CommandArguments } from "../Command";
+import { CommandArguments, SubCommandContainer } from "../Command";
 import TwitchUser from "../../TwitchUser";
-import { getPoints, addPoints, getTopPoints } from "../../../mongo/user";
+import {
+  getPoints,
+  addPoints,
+  getTopPoints,
+  setPoints,
+} from "../../../mongo/user";
 import { formatPoints } from "../../../utils";
 import { twitchAPI } from "../../../twitch_api";
+import { InvalidPointsError, resetAllPoints } from "../../../mongo/user";
 
 CommandHandler.queueDefaultCommand(
   new Command({
@@ -24,14 +30,15 @@ CommandHandler.queueDefaultCommand(
           const helixUser = await twitchAPI.helix.users.getUserByName(name);
           if (
             helixUser &&
-            (points = await getPoints({ twitchId: helixUser.id }))
+            (points = await getPoints({ twitchId: helixUser.id })) !== undefined
           ) {
             bot.reply(
               caller,
-              `${helixUser.displayName} has ${formatPoints(points)}`
+              `${helixUser.displayName} has ${formatPoints(points)}`,
+              channel
             );
           } else {
-            bot.reply(caller, `no points found for ${name}`);
+            bot.reply(caller, `no points found for ${name}`, channel);
           }
           return;
         }
@@ -48,10 +55,11 @@ CommandHandler.queueDefaultCommand(
           addPoints({ twitchId: id }, rand);
           bot.reply(
             caller,
-            `no balance found. I'll start you off with ${formatPoints(rand)}`
+            `no balance found. I'll start you off with ${formatPoints(rand)},`,
+            channel
           );
         } else bot.reply(caller, `no balance found!`);
-      } else bot.reply(caller, `you have ${formatPoints(points)}`);
+      } else bot.reply(caller, `you have ${formatPoints(points)}`, channel);
     },
   })
 );
@@ -80,3 +88,116 @@ CommandHandler.queueDefaultCommand(
 );
 
 // TODO: Mod commands
+
+let confirmKey: string | undefined;
+let timeout: NodeJS.Timeout | undefined;
+CommandHandler.queueDefaultCommand(
+  new SubCommandContainer(["points"])
+    .addCommand(
+      new Command({
+        permission: Permission.MOD,
+        aliases: ["set"],
+        args: [
+          { arg: CommandArguments.USER, name: "user" },
+          { arg: CommandArguments.NUMBER, name: "points" },
+        ],
+        callback: async (caller, channel, _alias, data, bot) => {
+          const [user, points] = data as [string | undefined, number];
+          if (points < 0) return bot.reply(caller, "no negative numbers!");
+
+          if (caller instanceof TwitchUser) {
+            if (user && user.startsWith("@")) {
+              const name = user.substr(1);
+              const helixUser = await twitchAPI.helix.users.getUserByName(name);
+              if (helixUser) {
+                await setPoints({ twitchId: helixUser.id }, points);
+                bot.reply(
+                  caller,
+                  `${helixUser.displayName} now has ${formatPoints(points)}`,
+                  channel
+                );
+              } else {
+                bot.reply(caller, `${name} is not in the database!`, channel);
+              }
+              return;
+            }
+          }
+        },
+      })
+    )
+    .addCommand(
+      new Command({
+        permission: Permission.MOD,
+        aliases: ["add"],
+        args: [
+          { arg: CommandArguments.USER, name: "user" },
+          { arg: CommandArguments.NUMBER, name: "points" },
+        ],
+        callback: async (caller, channel, _alias, data, bot) => {
+          const [user, points] = data as [string | undefined, number];
+
+          try {
+            if (caller instanceof TwitchUser) {
+              if (user && user.startsWith("@")) {
+                const name = user.substr(1);
+                const helixUser = await twitchAPI.helix.users.getUserByName(
+                  name
+                );
+                if (helixUser) {
+                  const updatedPoints = await addPoints(
+                    { twitchId: helixUser.id },
+                    points
+                  );
+                  bot.reply(
+                    caller,
+                    `${helixUser.displayName} now has ${formatPoints(
+                      updatedPoints
+                    )}`,
+                    channel
+                  );
+                } else {
+                  bot.reply(caller, `${name} is not in the database!`, channel);
+                }
+                return;
+              }
+            }
+          } catch (error) {
+            if (error instanceof InvalidPointsError)
+              return bot.reply(caller, "no negative numbers!", channel);
+            throw error;
+          }
+        },
+      })
+    )
+    .addCommand(
+      new Command({
+        permission: Permission.BROADCASTER,
+        aliases: ["reset"],
+        args: [{ arg: CommandArguments.STRING, name: "key", optional: true }],
+        callback: async (caller, channel, _alias, data, bot) => {
+          const [inputKey] = data as [string | undefined];
+
+          if (confirmKey && inputKey && inputKey === confirmKey) {
+            await resetAllPoints();
+            bot.reply(caller, `all points have been reset!`, channel);
+          } else {
+            confirmKey = Math.random().toString(36).substring(8);
+
+            if (timeout) {
+              clearTimeout(timeout);
+            }
+
+            timeout = setTimeout(() => {
+              confirmKey = undefined;
+              timeout = undefined;
+            }, 10000);
+            bot.reply(
+              caller,
+              `confirm the command by entering the key "${confirmKey}" within 10 seconds.`,
+              channel
+            );
+          }
+        },
+      })
+    )
+);

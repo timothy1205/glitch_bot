@@ -35,8 +35,12 @@ export const getPoints = async (id: IDTwitchOrDiscord) => {
   return user.points || 0;
 };
 
+export class InvalidPointsError extends Error {}
+
 export const setPoints = (id: IDTwitchOrDiscord, points: number) => {
-  return UserModel.updateOne(id, { points: points });
+  points = Math.round(points);
+  if (points < 0) throw new InvalidPointsError("cannot have negative points");
+  return UserModel.updateOne(id, { points });
 };
 
 export const addPoints = async (id: IDTwitchOrDiscord, points: number) => {
@@ -44,13 +48,18 @@ export const addPoints = async (id: IDTwitchOrDiscord, points: number) => {
   if (current === undefined && "twitchId" in id) {
     // No user found and we are working with twitch => create user
     await createUser({ twitchId: id.twitchId, points });
-    return;
+    return points;
   }
 
   const sum = (current || 0) + points;
-  if (sum >= 0) return setPoints(id, sum);
+  await setPoints(id, sum);
+  return sum;
 };
 
 export const getTopPoints = () => {
   return UserModel.find().sort({ points: -1 });
+};
+
+export const resetAllPoints = () => {
+  return UserModel.updateMany({}, { points: 0 });
 };
