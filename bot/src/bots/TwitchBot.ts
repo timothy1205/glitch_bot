@@ -3,7 +3,7 @@ import IBot from "./IBot";
 import IUser from "./IUser";
 import { twitchBotLogger } from "../logging";
 import TwitchUser from "./TwitchUser";
-import { acknowledgeChatter } from "../passive_points";
+import { acknowledgeChatter } from "../passive_stats";
 import twitchCommandHanlder from "./commands/TwitchCommandHandler";
 
 const tmiOptions: Options = {

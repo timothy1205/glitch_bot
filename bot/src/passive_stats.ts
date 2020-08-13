@@ -106,3 +106,7 @@ export const acknowledgeChatter = (
     chatter.points++;
   }
 };
+
+// TODO: Setup User watch time stuff
+// Add to user in mongodb
+// Create twitch command to allow user to view theirs/others
