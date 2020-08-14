@@ -1,7 +1,7 @@
 import { isBroadcasterLive, getChannelChatters, twitchAPI } from "./twitch_api";
 import { Permission } from "./bots/commands/CommandHandler";
-import { addPoints } from "./mongo/user";
 import { twitchBotLogger } from "./logging";
+import { addPoints } from "./mongo/models/UserModel";
 
 // TODO: Add commands to blacklist users (bots) from recieving points.
 // Save to mongo and pull all users on startup

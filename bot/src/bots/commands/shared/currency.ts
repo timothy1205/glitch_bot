@@ -8,10 +8,11 @@ import {
   addPoints,
   getTopPoints,
   setPoints,
-} from "../../../mongo/user";
+  InvalidPointsError,
+  resetAllPoints,
+} from "../../../mongo/models/UserModel";
 import { formatPoints } from "../../../utils";
 import { twitchAPI } from "../../../twitch_api";
-import { InvalidPointsError, resetAllPoints } from "../../../mongo/user";
 
 CommandHandler.queueDefaultCommand(
   new Command({
