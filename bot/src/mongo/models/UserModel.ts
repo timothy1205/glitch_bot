@@ -4,6 +4,7 @@ const userSchema = createSchema({
   twitchId: Type.string({ required: true }),
   discordId: Type.string(),
   points: Type.number({ default: 0 }),
+  minutesWatched: Type.number({ default: 0 }),
   usedFollowNotification: Type.boolean({ default: false }),
 });
 
@@ -72,4 +73,8 @@ export const getTopPoints = () => {
 
 export const resetAllPoints = () => {
   return UserModel.updateMany({}, { points: 0 });
+};
+
+export const getWatchTime = async (id: IDTwitchOrDiscord, points: number) => {
+  return (await UserModel.findOne(id))?.minutesWatched;
 };

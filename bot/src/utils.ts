@@ -16,3 +16,42 @@ export const formatPoints = (points: number) => {
     points != 1 ? "s" : ""
   } ${process.env.CURRENCY_EMOJI || ":moneybag:"}`;
 };
+
+const minPerYear = 525960;
+const minPerMonth = 43200;
+const minPerWeek = 10080;
+const minPerDay = 1440;
+const minPerHour = 60;
+
+const timeToString = (num: number, label: string) => {
+  if (!num) return "";
+
+  return `${num} ${label}${num > 1 ? "s" : ""}`;
+};
+
+export const formatWatchTime = (minutes: number) => {
+  let years, months, weeks, days, hours;
+
+  years = Math.floor(minutes / minPerYear);
+  minutes %= minPerYear;
+
+  months = Math.floor(minutes / minPerMonth);
+  minutes %= minPerMonth;
+
+  weeks = Math.floor(minutes / minPerWeek);
+  minutes %= minPerWeek;
+
+  days = Math.floor(minutes / minPerDay);
+  minutes %= minPerDay;
+
+  hours = Math.floor(minutes / minPerHour);
+  minutes %= minPerHour;
+
+  return `${timeToString(years, "year")} ${timeToString(
+    months,
+    "month"
+  )} ${timeToString(weeks, "week")} ${timeToString(days, "day")} ${timeToString(
+    hours,
+    "hour"
+  )} ${timeToString(minutes, "minutes")}`;
+};

@@ -9,6 +9,8 @@ import {
   getFollowsByID,
 } from "../../../twitch_api";
 import twitchBot from "../../TwitchBot";
+import { getUser } from "../../../mongo/models/UserModel";
+import { formatWatchTime } from "../../../utils";
 
 twitchCommandHandler.registerCommand(
   new Command({
@@ -69,6 +71,37 @@ twitchCommandHandler.registerCommand(
           ? "the stream is offline"
           : `the stream has been up for ${axiosResponse.data}.`;
       twitchBot.reply(caller, msg);
+    },
+  })
+);
+
+twitchCommandHandler.registerCommand(
+  new Command({
+    permission: Permission.USER,
+    aliases: ["watchtime", "wt"],
+    args: [{ arg: CommandArguments.USER, name: "user", optional: true }],
+    callback: async (caller, _channel, _alias, data, _bot) => {
+      const [user] = data as [string | undefined];
+      let mongoUser;
+
+      if (user) {
+        const helixUser = await twitchAPI.helix.users.getUserByName(user);
+        if (helixUser) mongoUser = await getUser({ twitchId: helixUser.id });
+      } else {
+        const id = caller.getID();
+        if (id) mongoUser = await getUser({ twitchId: id });
+      }
+
+      if (mongoUser && mongoUser.minutesWatched) {
+        twitchBot.reply(
+          caller,
+          `${user ? `${user} has` : "you've"} watched for ${formatWatchTime(
+            mongoUser.minutesWatched
+          )}`
+        );
+      } else {
+        twitchBot.reply(caller, "could not find any watch time!");
+      }
     },
   })
 );
