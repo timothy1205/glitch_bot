@@ -37,7 +37,7 @@
     "@types/mocha": "^8.0.0",
     "@types/mongoose": "^5.7.34",
     "@types/tmi.js": "^1.4.1",
-    "mocha": "^8.0.1",
+    "mocha": "^8.1.1",
     "nodemon": "^2.0.4",
     "source-map-support": "^0.5.19",
     "ts-mocha": "^7.0.0",
