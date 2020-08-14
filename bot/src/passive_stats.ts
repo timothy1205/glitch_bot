@@ -110,3 +110,5 @@ export const acknowledgeChatter = (
 // TODO: Setup User watch time stuff
 // Add to user in mongodb
 // Create twitch command to allow user to view theirs/others
+// Add twitch broadcaster cmd to blacklist users from gaining points/watch time (set in point updating functions))
+// Add global link black/whitelisting system !url allow/block (all urls besides some hard coded urls/domains blacklisted by default)
