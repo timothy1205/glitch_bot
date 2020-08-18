@@ -197,8 +197,6 @@ export default class CommandHandler {
           }
 
           if (arg.optional) shouldBeOptional = true;
-
-          console.log(arg, shouldBeOptional);
         });
       }
       if (invalidArgs) return;
