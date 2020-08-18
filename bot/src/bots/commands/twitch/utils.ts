@@ -10,7 +10,7 @@ import {
 } from "../../../twitch_api";
 import twitchBot from "../../TwitchBot";
 import { getUser } from "../../../mongo/models/UserModel";
-import { formatWatchTime } from "../../../utils";
+import { formatWatchTime, millisecondsToMinutes } from "../../../utils";
 
 twitchCommandHandler.registerCommand(
   new Command({
@@ -62,15 +62,19 @@ twitchCommandHandler.registerCommand(
     callback: async (caller, _channel, _alias, _data, _bot) => {
       if (!process.env.TWITCH_WORKING_CHANNEL) return;
 
-      const axiosResponse = await axios.get(
-        `https://beta.decapi.me/twitch/uptime/${process.env.TWITCH_WORKING_CHANNEL}`
+      const helixStream = await twitchAPI.helix.streams.getStreamByUserName(
+        process.env.TWITCH_WORKING_CHANNEL
       );
-      const msg =
-        `${axiosResponse.data}`.toLowerCase() ===
-        `${process.env.TWITCH_WORKING_CHANNEL} is offline`
-          ? "the stream is offline"
-          : `the stream has been up for ${axiosResponse.data}.`;
-      twitchBot.reply(caller, msg);
+      if (helixStream) {
+        twitchBot.reply(
+          caller,
+          `the stream has been up for ${formatWatchTime(
+            millisecondsToMinutes(Date.now() - helixStream.startDate.getTime())
+          )}`
+        );
+      } else {
+        twitchBot.reply(caller, "the stream is offline...");
+      }
     },
   })
 );

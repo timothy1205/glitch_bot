@@ -26,7 +26,7 @@ const minPerHour = 60;
 const timeToString = (num: number, label: string) => {
   if (!num) return "";
 
-  return `${num} ${label}${num > 1 ? "s" : ""}`;
+  return `${Math.round(num)} ${label}${num > 1 ? "s" : ""}`;
 };
 
 export const formatWatchTime = (minutes: number) => {
@@ -54,4 +54,8 @@ export const formatWatchTime = (minutes: number) => {
     hours,
     "hour"
   )} ${timeToString(minutes, "minutes")}`;
+};
+
+export const millisecondsToMinutes = (milliseconds: number) => {
+  return milliseconds / (1000 * 60);
 };
