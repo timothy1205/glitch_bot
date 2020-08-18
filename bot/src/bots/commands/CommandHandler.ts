@@ -196,7 +196,7 @@ export default class CommandHandler {
             return;
           }
 
-          if (arg.optional) shouldBeOptional = true;
+          shouldBeOptional = Boolean(arg.optional);
         });
       }
       if (invalidArgs) return;

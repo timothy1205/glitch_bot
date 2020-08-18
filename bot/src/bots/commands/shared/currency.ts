@@ -26,9 +26,8 @@ CommandHandler.queueDefaultCommand(
 
       let points: number | undefined;
       if (caller instanceof TwitchUser) {
-        if (user && user.startsWith("@")) {
-          const name = user.substr(1);
-          const helixUser = await twitchAPI.helix.users.getUserByName(name);
+        if (user) {
+          const helixUser = await twitchAPI.helix.users.getUserByName(user);
           if (
             helixUser &&
             (points = await getPoints({ twitchId: helixUser.id })) !== undefined
@@ -39,7 +38,7 @@ CommandHandler.queueDefaultCommand(
               channel
             );
           } else {
-            bot.reply(caller, `no points found for ${name}`, channel);
+            bot.reply(caller, `no points found for ${user}`, channel);
           }
           return;
         }
@@ -103,25 +102,22 @@ CommandHandler.queueDefaultCommand(
           { arg: CommandArguments.NUMBER, name: "points" },
         ],
         callback: async (caller, channel, _alias, data, bot) => {
-          const [user, points] = data as [string | undefined, number];
+          const [user, points] = data as [string, number];
           if (points < 0) return bot.reply(caller, "no negative numbers!");
 
           if (caller instanceof TwitchUser) {
-            if (user && user.startsWith("@")) {
-              const name = user.substr(1);
-              const helixUser = await twitchAPI.helix.users.getUserByName(name);
-              if (helixUser) {
-                await setPoints({ twitchId: helixUser.id }, points);
-                bot.reply(
-                  caller,
-                  `${helixUser.displayName} now has ${formatPoints(points)}`,
-                  channel
-                );
-              } else {
-                bot.reply(caller, `${name} is not in the database!`, channel);
-              }
-              return;
+            const helixUser = await twitchAPI.helix.users.getUserByName(user);
+            if (helixUser) {
+              await setPoints({ twitchId: helixUser.id }, points);
+              bot.reply(
+                caller,
+                `${helixUser.displayName} now has ${formatPoints(points)}`,
+                channel
+              );
+            } else {
+              bot.reply(caller, `${name} is not in the database!`, channel);
             }
+            return;
           }
         },
       })
@@ -135,32 +131,26 @@ CommandHandler.queueDefaultCommand(
           { arg: CommandArguments.NUMBER, name: "points" },
         ],
         callback: async (caller, channel, _alias, data, bot) => {
-          const [user, points] = data as [string | undefined, number];
-
+          const [user, points] = data as [string, number];
           try {
             if (caller instanceof TwitchUser) {
-              if (user && user.startsWith("@")) {
-                const name = user.substr(1);
-                const helixUser = await twitchAPI.helix.users.getUserByName(
-                  name
+              const helixUser = await twitchAPI.helix.users.getUserByName(user);
+              if (helixUser) {
+                const updatedPoints = await addPoints(
+                  { twitchId: helixUser.id },
+                  points
                 );
-                if (helixUser) {
-                  const updatedPoints = await addPoints(
-                    { twitchId: helixUser.id },
-                    points
-                  );
-                  bot.reply(
-                    caller,
-                    `${helixUser.displayName} now has ${formatPoints(
-                      updatedPoints
-                    )}`,
-                    channel
-                  );
-                } else {
-                  bot.reply(caller, `${name} is not in the database!`, channel);
-                }
-                return;
+                bot.reply(
+                  caller,
+                  `${helixUser.displayName} now has ${formatPoints(
+                    updatedPoints
+                  )}`,
+                  channel
+                );
+              } else {
+                bot.reply(caller, `${name} is not in the database!`, channel);
               }
+              return;
             }
           } catch (error) {
             if (error instanceof InvalidPointsError)
