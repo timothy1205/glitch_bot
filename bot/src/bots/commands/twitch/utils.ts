@@ -1,7 +1,7 @@
 import axios from "axios";
 import twitchCommandHandler from "../TwitchCommandHandler";
 import Command from "../Command";
-import { CommandArguments } from "../Command";
+import { CommandArguments, SubCommandContainer } from "../Command";
 import { Permission } from "../CommandHandler";
 import {
   twitchAPI,
@@ -9,7 +9,11 @@ import {
   getFollowsByID,
 } from "../../../twitch_api";
 import twitchBot from "../../TwitchBot";
-import { getUser } from "../../../mongo/models/UserModel";
+import {
+  getUser,
+  setStatBanned,
+  getStatBanned,
+} from "../../../mongo/models/UserModel";
 import { formatWatchTime, millisecondsToMinutes } from "../../../utils";
 
 twitchCommandHandler.registerCommand(
@@ -108,4 +112,66 @@ twitchCommandHandler.registerCommand(
       }
     },
   })
+);
+
+twitchCommandHandler.registerCommand(
+  new SubCommandContainer(["stat", "statistic"])
+    .addCommand(
+      new Command({
+        permission: Permission.BROADCASTER,
+        aliases: ["ban"],
+        args: [{ arg: CommandArguments.USER, name: "user" }],
+        callback: async (caller, _channel, _alias, data, _bot) => {
+          const [user] = data as [string];
+
+          const helixUser = await twitchAPI.helix.users.getUserByName(user);
+          if (helixUser) {
+            setStatBanned(helixUser.id, true);
+            twitchBot.reply(
+              caller,
+              `${user} is now banned from gaining points/watch time`
+            );
+          } else twitchBot.reply(caller, "user not found!");
+        },
+      })
+    )
+    .addCommand(
+      new Command({
+        permission: Permission.BROADCASTER,
+        aliases: ["unban"],
+        args: [{ arg: CommandArguments.USER, name: "user" }],
+        callback: async (caller, _channel, _alias, data, _bot) => {
+          const [user] = data as [string];
+
+          const helixUser = await twitchAPI.helix.users.getUserByName(user);
+          if (helixUser) {
+            setStatBanned(helixUser.id, false);
+            twitchBot.reply(
+              caller,
+              `${helixUser.displayName} is no longer banned from gaining points/watch time`
+            );
+          } else twitchBot.reply(caller, "user not found!");
+        },
+      })
+    )
+    .addCommand(
+      new Command({
+        permission: Permission.MOD,
+        aliases: ["check"],
+        args: [{ arg: CommandArguments.USER, name: "user" }],
+        callback: async (caller, _channel, _alias, data, _bot) => {
+          const [user] = data as [string];
+
+          const helixUser = await twitchAPI.helix.users.getUserByName(user);
+          const banned =
+            helixUser && (await getStatBanned({ twitchId: helixUser.id }));
+          twitchBot.reply(
+            caller,
+            `${helixUser?.displayName || user} ${
+              banned ? "is" : "is not"
+            } banned`
+          );
+        },
+      })
+    )
 );

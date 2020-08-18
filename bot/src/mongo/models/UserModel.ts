@@ -6,6 +6,7 @@ const userSchema = createSchema({
   points: Type.number({ default: 0 }),
   minutesWatched: Type.number({ default: 0 }),
   usedFollowNotification: Type.boolean({ default: false }),
+  statBanned: Type.boolean({ default: false }),
 });
 
 const UserModel = typedModel("user", userSchema);
@@ -48,9 +49,13 @@ export const getPoints = async (id: IDTwitchOrDiscord) => {
 
 export class InvalidPointsError extends Error {}
 
-export const setPoints = (id: IDTwitchOrDiscord, points: number) => {
+export const setPoints = async (id: IDTwitchOrDiscord, points: number) => {
   points = Math.round(points);
   if (points < 0) throw new InvalidPointsError("cannot have negative points");
+
+  // Can only have 0 points
+  if (await getStatBanned(id)) points = 0;
+
   return UserModel.updateOne(id, { points });
 };
 
@@ -77,4 +82,14 @@ export const resetAllPoints = () => {
 
 export const getWatchTime = async (id: IDTwitchOrDiscord, points: number) => {
   return (await UserModel.findOne(id))?.minutesWatched;
+};
+
+export const getStatBanned = async (id: IDTwitchOrDiscord) => {
+  return (await UserModel.findOne(id))?.statBanned;
+};
+
+export const setStatBanned = async (twitchId: string, val: boolean) => {
+  const user = await getOrCreateUser(twitchId);
+  user.statBanned = val;
+  await user.save();
 };
