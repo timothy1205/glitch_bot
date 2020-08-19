@@ -23,10 +23,11 @@ const minPerWeek = 10080;
 const minPerDay = 1440;
 const minPerHour = 60;
 
-const timeToString = (num: number, label: string) => {
+const timeToString = (num: number, label: string, suffix: string = " ") => {
   if (!num) return "";
 
-  return `${Math.round(num)} ${label}${num > 1 ? "s" : ""}`;
+  num = Math.round(num);
+  return `${num} ${label}${num > 1 ? "s" : ""}`;
 };
 
 export const formatWatchTime = (minutes: number) => {
@@ -47,13 +48,13 @@ export const formatWatchTime = (minutes: number) => {
   hours = Math.floor(minutes / minPerHour);
   minutes %= minPerHour;
 
-  return `${timeToString(years, "year")} ${timeToString(
+  return `${timeToString(years, "year")}${timeToString(
     months,
     "month"
-  )} ${timeToString(weeks, "week")} ${timeToString(days, "day")} ${timeToString(
+  )}${timeToString(weeks, "week")}${timeToString(days, "day")}${timeToString(
     hours,
     "hour"
-  )} ${timeToString(minutes, "minutes")}`;
+  )}${timeToString(minutes, "minute", "")}`;
 };
 
 export const millisecondsToMinutes = (milliseconds: number) => {
