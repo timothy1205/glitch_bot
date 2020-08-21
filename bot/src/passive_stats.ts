@@ -1,13 +1,14 @@
-import { isBroadcasterLive, getChannelChatters, twitchAPI } from "./twitch_api";
+import { isBroadcasterLive, getChatterHelixUsers } from "./twitch_api";
 import { Permission } from "./bots/commands/CommandHandler";
 import { twitchBotLogger } from "./logging";
-import { addPoints } from "./mongo/models/UserModel";
+import { addPoints, addWatchTime } from "./mongo/models/UserModel";
 
 // TODO: Add commands to blacklist users (bots) from recieving points.
 // Save to mongo and pull all users on startup
 
 const timerInterval = 20 * 60 * 1000;
 const acknowledgeResetInterval = 5 * 60 * 1000;
+const watchTimeInterval = 5 * 60 * 1000;
 const watchMultiplier = 4;
 const chatMultiplier = 1;
 
@@ -28,18 +29,18 @@ interface Chatter {
 let chatters: { [twitchId: string]: Chatter } = {};
 
 const distributeWatchPoints = async () => {
-  const names = (await getChannelChatters()).allChatters;
-  if (names.length < 0) return 0;
-
   const promises: Array<Promise<any>> = [];
-  (await twitchAPI.helix.users.getUsersByNames(names)).forEach((user) => {
-    // Don't give points to the bot
-    if (user.name === process.env.TWITCH_USERNAME) return;
+  const helixUsers = await getChatterHelixUsers();
+  if (helixUsers) {
+    helixUsers.forEach((user) => {
+      // Don't give points to the bot
+      if (user.name === process.env.TWITCH_USERNAME) return;
 
-    promises.push(addPoints({ twitchId: user.id }, watchMultiplier));
-  });
+      promises.push(addPoints({ twitchId: user.id }, watchMultiplier));
+    });
 
-  return Promise.all(promises);
+    return Promise.all(promises);
+  }
 };
 
 const distributeChatPoints = () => {
@@ -84,14 +85,35 @@ const distributePoints = async () => {
   await distributeChatPoints();
 };
 
+const distibuteWatchTime = async () => {
+  if (process.env.NODE_ENV !== "development" && !(await isBroadcasterLive()))
+    return;
+
+  twitchBotLogger.info("Distributing watch time...");
+
+  const helixUsers = await getChatterHelixUsers();
+  if (helixUsers) {
+    helixUsers.forEach((user) => {
+      // Don't give points to the bot
+      if (user.name === process.env.TWITCH_USERNAME) return;
+
+      addWatchTime({ twitchId: user.id }, watchTimeInterval);
+    });
+  }
+};
+
 let mainTimer: NodeJS.Timeout;
 let chatResetTimer: NodeJS.Timeout;
+let watchTimeTimer: NodeJS.Timeout;
 export const setupPassivePointTimer = () => {
   if (mainTimer) clearInterval(mainTimer);
   mainTimer = setInterval(distributePoints, timerInterval);
 
   if (chatResetTimer) clearInterval(chatResetTimer);
   chatResetTimer = setInterval(resetAcknowledgements, acknowledgeResetInterval);
+
+  if (watchTimeTimer) clearInterval(watchTimeTimer);
+  watchTimeTimer = setInterval(distibuteWatchTime, watchTimeInterval);
 };
 
 export const acknowledgeChatter = (

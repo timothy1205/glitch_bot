@@ -80,8 +80,31 @@ export const resetAllPoints = () => {
   return UserModel.updateMany({}, { points: 0 });
 };
 
-export const getWatchTime = async (id: IDTwitchOrDiscord, points: number) => {
+export const getWatchTime = async (id: IDTwitchOrDiscord) => {
   return (await UserModel.findOne(id))?.minutesWatched;
+};
+
+export const setWatchTime = async (id: IDTwitchOrDiscord, minutes: number) => {
+  minutes = Math.round(minutes);
+  if (minutes < 0) throw new InvalidPointsError("cannot have negative time");
+
+  // Can only have 0 points
+  if (await getStatBanned(id)) minutes = 0;
+
+  return UserModel.updateOne(id, { minutesWatched: minutes });
+};
+
+export const addWatchTime = async (id: IDTwitchOrDiscord, minutes: number) => {
+  const current = await getWatchTime(id);
+  if (current === undefined && "twitchId" in id) {
+    // No user found and we are working with twitch => create user
+    await createUser({ twitchId: id.twitchId, points: minutes });
+    return minutes;
+  }
+
+  const sum = (current || 0) + minutes;
+  await setWatchTime(id, sum);
+  return sum;
 };
 
 export const getStatBanned = async (id: IDTwitchOrDiscord) => {

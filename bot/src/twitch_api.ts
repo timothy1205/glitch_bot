@@ -19,6 +19,13 @@ export const getChannelChatters = () => {
   );
 };
 
+export const getChatterHelixUsers = async () => {
+  const names = (await getChannelChatters()).allChatters;
+  if (names.length < 0) return;
+
+  return twitchAPI.helix.users.getUsersByNames(names);
+};
+
 const getBroadcaster = () => {
   return twitchAPI.helix.users.getUserByName(
     process.env.TWITCH_WORKING_CHANNEL || ""
