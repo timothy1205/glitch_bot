@@ -3,9 +3,6 @@ import { Permission } from "./bots/commands/CommandHandler";
 import { twitchBotLogger } from "./logging";
 import { addPoints, addWatchTime } from "./mongo/models/UserModel";
 
-// TODO: Add commands to blacklist users (bots) from recieving points.
-// Save to mongo and pull all users on startup
-
 const timerInterval = 20 * 60 * 1000;
 const acknowledgeResetInterval = 5 * 60 * 1000;
 const watchTimeInterval = 5 * 60 * 1000;
@@ -129,8 +126,4 @@ export const acknowledgeChatter = (
   }
 };
 
-// TODO: Setup User watch time stuff
-// Add to user in mongodb
-// Create twitch command to allow user to view theirs/others
-// Add twitch broadcaster cmd to blacklist users from gaining points/watch time (set in point updating functions))
 // Add global link black/whitelisting system !url allow/block (all urls besides some hard coded urls/domains blacklisted by default)
