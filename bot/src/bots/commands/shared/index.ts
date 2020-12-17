@@ -1,3 +1,3 @@
-export * from "./command";
-export * from "./currency";
-export * from "./admin";
+export * from "./command_commands";
+export * from "./currency_commands";
+export * from "./admin_commands";

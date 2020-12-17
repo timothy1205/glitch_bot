@@ -5,7 +5,7 @@ import { RegisterError } from "../CommandHandler";
 import {
   setMongoStaticCommand,
   deleteMongoStaticCommand,
-} from "../../../mongo/static_commands";
+} from "../../../mongo/staticCommands";
 
 CommandHandler.queueDefaultCommand(
   new SubCommandContainer(["command", "cmd"])
