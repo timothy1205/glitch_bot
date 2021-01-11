@@ -48,13 +48,13 @@ export const formatWatchTime = (minutes: number) => {
   hours = Math.floor(minutes / minPerHour);
   minutes %= minPerHour;
 
-  return `${timeToString(years, "year")}${timeToString(
+  return `${timeToString(years, "year")} ${timeToString(
     months,
     "month"
-  )}${timeToString(weeks, "week")}${timeToString(days, "day")}${timeToString(
+  )} ${timeToString(weeks, "week")} ${timeToString(days, "day")} ${timeToString(
     hours,
     "hour"
-  )}${timeToString(minutes, "minute", "")}`;
+  )} ${timeToString(minutes, "minute", "")}`;
 };
 
 export const millisecondsToMinutes = (milliseconds: number) => {
