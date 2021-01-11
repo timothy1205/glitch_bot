@@ -115,7 +115,7 @@ CommandHandler.queueDefaultCommand(
                 channel
               );
             } else {
-              bot.reply(caller, `${name} is not in the database!`, channel);
+              bot.reply(caller, `${user} is not in the database!`, channel);
             }
             return;
           }
@@ -148,7 +148,7 @@ CommandHandler.queueDefaultCommand(
                   channel
                 );
               } else {
-                bot.reply(caller, `${name} is not in the database!`, channel);
+                bot.reply(caller, `${user} is not in the database!`, channel);
               }
               return;
             }
