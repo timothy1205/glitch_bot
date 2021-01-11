@@ -1,9 +1,12 @@
-import TwitchClient from "twitch";
+import { ApiClient } from "twitch";
+import { ClientCredentialsAuthProvider } from "twitch-auth";
 
-export const twitchAPI = TwitchClient.withClientCredentials(
-  process.env.TWITCH_CLIENT_ID || "",
-  process.env.TWITCH_CLIENT_SECRET
-);
+export const twitchAPI = new ApiClient({
+  authProvider: new ClientCredentialsAuthProvider(
+    process.env.TWITCH_CLIENT_ID || "",
+    process.env.TWITCH_CLIENT_SECRET || ""
+  ),
+});
 
 export const isBroadcasterLive = async () => {
   return (

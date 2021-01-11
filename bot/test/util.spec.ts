@@ -8,13 +8,13 @@ describe("utils.ts", function () {
         [1, 2, 3, 4, 5],
         ["1", "2", "3", "4", "5"]
       );
-      assert.equal(result.length, 5);
+      assert.strictEqual(result.length, 5);
 
       const makeshiftResult = [];
       for (let i = 1; i < 6; i++) {
         makeshiftResult.push({ left: i, right: i.toString() });
       }
-      assert.deepEqual(result, makeshiftResult);
+      assert.deepStrictEqual(result, makeshiftResult);
     });
 
     it("Arrays with different lengths", function () {
@@ -32,7 +32,7 @@ describe("utils.ts", function () {
         });
       }
 
-      assert.deepEqual(result, makeshiftResult);
+      assert.deepStrictEqual(result, makeshiftResult);
     });
   });
 });
