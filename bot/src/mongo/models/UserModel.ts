@@ -73,7 +73,7 @@ export const addPoints = async (id: IDTwitchOrDiscord, points: number) => {
 };
 
 export const getTopPoints = () => {
-  return UserModel.find().sort({ points: -1 });
+  return UserModel.find().sort({ points: -1 }).limit(5);
 };
 
 export const resetAllPoints = () => {
