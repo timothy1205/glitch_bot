@@ -3,9 +3,11 @@ import { Permission } from "./bots/commands/CommandHandler";
 import { twitchBotLogger } from "./logging";
 import { addPoints, addWatchTime } from "./mongo/models/UserModel";
 
-const timerInterval = 20 * 60 * 1000;
-const acknowledgeResetInterval = 5 * 60 * 1000;
-const watchTimeInterval = 5 * 60 * 1000;
+// Intervals in minutes
+const timerInterval = 20;
+const acknowledgeResetInterval = 5;
+const watchTimeInterval = 5;
+
 const watchMultiplier = 4;
 const chatMultiplier = 1;
 
@@ -104,13 +106,19 @@ let chatResetTimer: NodeJS.Timeout;
 let watchTimeTimer: NodeJS.Timeout;
 export const setupPassivePointTimer = () => {
   if (mainTimer) clearInterval(mainTimer);
-  mainTimer = setInterval(distributePoints, timerInterval);
+  mainTimer = setInterval(distributePoints, timerInterval * 60 * 1000);
 
   if (chatResetTimer) clearInterval(chatResetTimer);
-  chatResetTimer = setInterval(resetAcknowledgements, acknowledgeResetInterval);
+  chatResetTimer = setInterval(
+    resetAcknowledgements,
+    acknowledgeResetInterval * 60 * 1000
+  );
 
   if (watchTimeTimer) clearInterval(watchTimeTimer);
-  watchTimeTimer = setInterval(distibuteWatchTime, watchTimeInterval);
+  watchTimeTimer = setInterval(
+    distibuteWatchTime,
+    watchTimeInterval * 60 * 1000
+  );
 };
 
 export const acknowledgeChatter = (
