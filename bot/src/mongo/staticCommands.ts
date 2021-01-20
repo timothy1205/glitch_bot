@@ -16,5 +16,5 @@ export const setMongoStaticCommand = async (
 };
 
 export const deleteMongoStaticCommand = async (alias: string) => {
-  StaticCommandModel.deleteOne({ aliases: alias });
+  return StaticCommandModel.deleteOne({ aliases: alias });
 };
