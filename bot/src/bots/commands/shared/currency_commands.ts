@@ -184,7 +184,7 @@ CommandHandler.queueDefaultCommand(
             }, 10000);
             bot.reply(
               caller,
-              `confirm the command by entering the key "${confirmKey}" within 10 seconds.`,
+              `confirm by repeating the command followed by "${confirmKey}" within 10 seconds.`,
               channel
             );
           }
