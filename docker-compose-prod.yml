@@ -11,9 +11,11 @@ services:
     environment:
       NODE_ENV: production
       LOG_LEVEL: info
+    restart: always
   mongo:
     image: mongo
     volumes:
       - /data/db:/data/db
     ports:
       - 27017:27017
+    restart: always
