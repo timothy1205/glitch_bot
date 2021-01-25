@@ -2,9 +2,8 @@ import twitchBot from "../../TwitchBot";
 import { twitchAPI } from "../../../twitch_api";
 import Command, { CommandArguments } from "../Command";
 import { Permission } from "../CommandHandler";
-import twitchCommandHandler from "../TwitchCommandHandler";
 
-twitchCommandHandler.registerCommand(
+twitchBot.getCommandHandler()?.registerCommand(
   new Command({
     permission: Permission.OWNER,
     aliases: ["twitchinfo"],

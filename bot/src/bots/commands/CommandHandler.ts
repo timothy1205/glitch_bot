@@ -52,7 +52,7 @@ export default class CommandHandler {
   private hardCommands: {
     [alias: string]: SubCommandContainer | Command<HardCallback>;
   } = {};
-  private bot: IBot;
+  private bot: IBot | null;
   private logger: winston.Logger;
   private parserMap: Map<CommandArguments, ParserCallback> = new Map();
 
@@ -75,13 +75,13 @@ export default class CommandHandler {
     command,
   }: CommandData & { command: Command<HardCallback> }): void {
     const usage = this.getUsageMessage(command);
-    if (usage) this.bot.reply(user, usage, channel);
+    if (usage && this.bot) this.bot.reply(user, usage, channel);
   }
 
   protected onInsufficientPermission(data: CommandData): void {}
 
-  constructor(bot: IBot, logger: winston.Logger) {
-    this.bot = bot;
+  constructor(logger: winston.Logger) {
+    this.bot = null;
     this.logger = logger;
 
     CommandHandler.commandHandlers.add(this);
@@ -168,6 +168,10 @@ export default class CommandHandler {
         handler.registerCommand(cmd);
       });
     });
+  }
+
+  public setBot(bot: IBot) {
+    this.bot = bot;
   }
 
   public registerCommand(command: SubCommandContainer | Command<HardCallback>) {
@@ -260,7 +264,7 @@ export default class CommandHandler {
           return;
         }
 
-        staticCommand.getCallback()(this.bot, channel);
+        if (this.bot) staticCommand.getCallback()(this.bot, channel);
       }
     } else {
       // Normal message
@@ -325,7 +329,8 @@ export default class CommandHandler {
     }
 
     try {
-      await command.getCallback()(user, channel, alias, args, this.bot);
+      if (this.bot)
+        await command.getCallback()(user, channel, alias, args, this.bot);
     } catch (error) {
       let str = `Caught error while running '${alias}: '`;
       if (error instanceof Error) {

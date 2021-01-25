@@ -2,11 +2,10 @@ import CommandHandler from "./CommandHandler";
 import IBot from "../IBot";
 import { twitchBotLogger } from "../../logging";
 import { CommandArguments } from "./Command";
-import twitchBot from "../TwitchBot";
 
-class TwitchCommandHandler extends CommandHandler {
-  constructor(bot: IBot) {
-    super(bot, twitchBotLogger);
+export default class TwitchCommandHandler extends CommandHandler {
+  constructor() {
+    super(twitchBotLogger);
 
     this.registerParser(CommandArguments.USER, (original) => {
       if (!original.startsWith("@"))
@@ -22,6 +21,3 @@ class TwitchCommandHandler extends CommandHandler {
     return super.getArgTypeAsString(arg);
   }
 }
-
-const twitchCommandHanlder = new TwitchCommandHandler(twitchBot);
-export default twitchCommandHanlder;

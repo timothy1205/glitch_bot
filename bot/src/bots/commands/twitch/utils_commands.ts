@@ -1,5 +1,4 @@
 import axios from "axios";
-import twitchCommandHandler from "../TwitchCommandHandler";
 import Command from "../Command";
 import { CommandArguments, SubCommandContainer } from "../Command";
 import { Permission } from "../CommandHandler";
@@ -16,7 +15,7 @@ import {
 } from "../../../mongo/models/UserModel";
 import { formatWatchTime, millisecondsToMinutes } from "../../../utils";
 
-twitchCommandHandler.registerCommand(
+twitchBot.getCommandHandler()?.registerCommand(
   new Command({
     permission: Permission.USER,
     aliases: ["followage", "fa"],
@@ -59,7 +58,7 @@ twitchCommandHandler.registerCommand(
   })
 );
 
-twitchCommandHandler.registerCommand(
+twitchBot.getCommandHandler()?.registerCommand(
   new Command({
     permission: Permission.USER,
     aliases: ["uptime", "up"],
@@ -82,8 +81,7 @@ twitchCommandHandler.registerCommand(
     },
   })
 );
-
-twitchCommandHandler.registerCommand(
+twitchBot.getCommandHandler()?.registerCommand(
   new Command({
     permission: Permission.USER,
     aliases: ["watchtime", "wt"],
@@ -114,7 +112,7 @@ twitchCommandHandler.registerCommand(
   })
 );
 
-twitchCommandHandler.registerCommand(
+twitchBot.getCommandHandler()?.registerCommand(
   new SubCommandContainer(["stat", "statistic"])
     .addCommand(
       new Command({

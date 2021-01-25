@@ -4,7 +4,7 @@ import IUser from "./IUser";
 import { twitchBotLogger } from "../logging";
 import TwitchUser from "./TwitchUser";
 import { acknowledgeChatter } from "../passive_stats";
-import twitchCommandHanlder from "./commands/TwitchCommandHandler";
+import TwitchCommandHandler from "./commands/TwitchCommandHandler";
 
 const tmiOptions: Options = {
   identity: {
@@ -26,15 +26,16 @@ const tmiOptions: Options = {
 class TwitchBot extends IBot {
   private tmiClient: Client;
 
-  constructor() {
+  constructor(twitchCommandHandler: TwitchCommandHandler) {
     super();
 
-    this.setCommandHandler(twitchCommandHanlder);
+    this.setCommandHandler(twitchCommandHandler);
+    twitchCommandHandler.setBot(this);
 
     this.tmiClient = Client(tmiOptions);
     this.tmiClient.addListener("message", (channel, userstate, msg, self) => {
       const user = new TwitchUser(userstate);
-      twitchCommandHanlder.handleMessage({
+      twitchCommandHandler.handleMessage({
         user,
         channel,
         msg,
@@ -66,5 +67,5 @@ class TwitchBot extends IBot {
   }
 }
 
-const twitchBot = new TwitchBot();
+const twitchBot = new TwitchBot(new TwitchCommandHandler());
 export default twitchBot;
