@@ -87,8 +87,6 @@ CommandHandler.queueDefaultCommand(
   })
 );
 
-// TODO: Mod commands
-
 let confirmKey: string | undefined;
 let timeout: NodeJS.Timeout | undefined;
 CommandHandler.queueDefaultCommand(
