@@ -147,8 +147,10 @@ export default class CommandHandler {
     if (!command) throw new RegisterError("invalid alias");
 
     for (let alias in CommandHandler.staticCommands) {
-      if (CommandHandler.staticCommands[alias] == command)
+      if (CommandHandler.staticCommands[alias] == command) {
         delete CommandHandler.staticCommands[alias];
+        CommandHandler.deleteReserveredAlias(alias);
+      }
     }
   }
 
