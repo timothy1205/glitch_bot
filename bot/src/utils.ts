@@ -12,9 +12,10 @@ export function combineArrays<L, R>(leftArray: L[], rightArray: R[]) {
 }
 
 export const formatPoints = (points: number) => {
-  return `${points} ${process.env.CURRENCY_NAME || "point"}${
-    points != 1 ? "s" : ""
-  } ${process.env.CURRENCY_EMOJI || ":moneybag:"}`;
+  const currency = process.env.CURRENCY_NAME || "point";
+  const currencyPlural = process.env.CURRENCY_NAME_PLURAL || currency + "s";
+  const emote = process.env.CURRENCY_EMOJI || ":moneybag:";
+  return `${points} ${points != 1 ? currencyPlural : currency} ${emote}`;
 };
 
 const minPerYear = 525960;
