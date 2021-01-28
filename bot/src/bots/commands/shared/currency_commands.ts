@@ -55,7 +55,7 @@ CommandHandler.queueDefaultCommand(
           addPoints({ twitchId: id }, rand);
           bot.reply(
             caller,
-            `no balance found. I'll start you off with ${formatPoints(rand)},`,
+            `no balance found. I'll start you off with ${formatPoints(rand)}`,
             channel
           );
         } else bot.reply(caller, `no balance found!`);
