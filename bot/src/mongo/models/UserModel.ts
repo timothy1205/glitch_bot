@@ -6,6 +6,7 @@ const userSchema = createSchema({
   points: Type.number({ default: 0 }),
   minutesWatched: Type.number({ default: 0 }),
   usedFollowNotification: Type.boolean({ default: false }),
+  followDate: Type.date({ required: false }),
   statBanned: Type.boolean({ default: false }),
 });
 
@@ -13,6 +14,7 @@ const UserModel = typedModel("user", userSchema);
 export default UserModel;
 
 type IDTwitchOrDiscord = { twitchId: string } | { discordId: string };
+type TwitchIDOrUser = { twitchId: string } | { user: typeof UserModel };
 
 export const getUser = (id: IDTwitchOrDiscord) => {
   return UserModel.findOne(id);
@@ -114,5 +116,21 @@ export const getStatBanned = async (id: IDTwitchOrDiscord) => {
 export const setStatBanned = async (twitchId: string, val: boolean) => {
   const user = await getOrCreateUser(twitchId);
   user.statBanned = val;
+  await user.save();
+};
+
+export const setFollowed = async (
+  idOrUser: TwitchIDOrUser,
+  date: Date = new Date()
+) => {
+  let user;
+  if ("twitchId" in idOrUser) {
+    user = await getOrCreateUser(idOrUser.twitchId);
+  } else {
+    user = idOrUser.user;
+  }
+
+  user.usedFollowNotification = true;
+  user.followDate = date;
   await user.save();
 };
