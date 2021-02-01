@@ -5,8 +5,7 @@ COPY package.json .
 
 RUN npm install 
 RUN npm build
+COPY . .
 RUN npm run build
 
 CMD ["node", "dist/main.js"]
-
-COPY . .
