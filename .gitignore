@@ -5,3 +5,4 @@ bot/.env
 
 *.log
 data
+docker-compose-prod.yml
