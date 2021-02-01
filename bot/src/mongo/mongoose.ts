@@ -22,7 +22,12 @@ const registerStaticCommands = async () => {
   });
 };
 
-mongoose.connect("mongodb://mongo:27017/glitch_bot", {
+if (!process.env.MONGO_URL) {
+  mongooseLogger.error("Env MONGO_URL not specified!");
+  process.exit(1);
+}
+
+mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -32,7 +37,9 @@ export const connection = mongoose.connection;
 connection.on("error", (err) => mongooseLogger.error(err));
 
 connection.on("open", async () => {
-  mongooseLogger.info("Successfully connected to MongoDB!");
+  mongooseLogger.info(
+    `Successfully connected to MongoDB (${process.env.MONGO_URL})`
+  );
   registerStaticCommands();
 });
 
