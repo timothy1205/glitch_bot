@@ -123,6 +123,8 @@ const registerPermanentSubs = async () => {
     return;
   }
 
+  twitchBotLogger.info("Registering permanent subscriptions...");
+
   await listener.subscribeToFollowsToUser(broadcaster.id, async (follower) => {
     const user = await getOrCreateUser(follower.userId);
 
