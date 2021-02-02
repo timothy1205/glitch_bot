@@ -1,8 +1,9 @@
+import { sleepPromise } from "./utils";
 import { getOrCreateUser } from "./mongo/models/UserModel";
 import { twitchBotLogger } from "./logging";
 import twitchBot from "./bots/TwitchBot";
 import { setFollowed } from "./mongo/models/UserModel";
-import { ApiClient, HelixUser } from "twitch";
+import { ApiClient, HelixUser, HelixWebHookSubscription } from "twitch";
 import { ClientCredentialsAuthProvider } from "twitch-auth";
 import { WebHookListener, SimpleAdapter } from "twitch-webhooks";
 import { NgrokAdapter } from "twitch-webhooks-ngrok";
@@ -80,6 +81,39 @@ export const getFollowsByID = async (twitchId: string) => {
   }
 };
 
+const unregisterWebhooks = async () => {
+  twitchBotLogger.info("Unsubbing all channel webhooks...");
+
+  const paginatedSubs = await twitchAPI.helix.webHooks.getSubscriptions();
+  const subs = new Array<HelixWebHookSubscription>();
+
+  let page = new Array<HelixWebHookSubscription>();
+
+  page = await paginatedSubs.getAll();
+  while (page.length) {
+    page.forEach((sub) => {
+      subs.push(sub);
+    });
+
+    page = await paginatedSubs.getNext();
+  }
+
+  const channelId = await getBroadcaster();
+  if (channelId) {
+    const promises = new Array<Promise<void>>();
+    subs.forEach((sub) => {
+      if (sub.topicUrl.includes(channelId.id)) {
+        promises.push(sub.unsubscribe());
+      }
+    });
+
+    await Promise.all(promises);
+    // Wait two seconds just in case
+    await sleepPromise(2000);
+    twitchBotLogger.info("Finished unsubbing webhooks!");
+  }
+};
+
 const registerPermanentSubs = async () => {
   const broadcaster = await getBroadcaster();
   if (!broadcaster) {
@@ -103,6 +137,8 @@ const registerPermanentSubs = async () => {
 
 let listener: WebHookListener;
 const setupHooks = async () => {
+  await unregisterWebhooks();
+
   if (process.env.NODE_ENV === "development") {
     twitchBotLogger.info("Starting Ngrok listener!");
     listener = new WebHookListener(twitchAPI, new NgrokAdapter(), {

@@ -61,3 +61,9 @@ export const formatWatchTime = (minutes: number) => {
 export const millisecondsToMinutes = (milliseconds: number) => {
   return milliseconds / (1000 * 60);
 };
+
+export const sleepPromise = (ms: number) => {
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, ms);
+  });
+};
