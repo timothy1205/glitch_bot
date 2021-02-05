@@ -22,12 +22,10 @@ twitchBot.getCommandHandler()?.registerCommand(
     args: [{ arg: CommandArguments.USER, name: "user", optional: true }],
     callback: async (caller, _channel, _alias, data, _bot) => {
       const [user] = data as [string | undefined];
-      const twitchId = caller.getID();
-      if (!twitchId) return;
 
       const followUser = user
         ? await getFollowsByName(user)
-        : await getFollowsByID(twitchId);
+        : await getFollowsByName(caller.getUsername());
 
       if (followUser) {
         const followDate = new Date(followUser.followDate);
