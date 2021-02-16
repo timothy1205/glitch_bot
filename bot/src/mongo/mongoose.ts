@@ -1,3 +1,4 @@
+import { addAutoMessage } from "./../auto_messages";
 import { RegisterError } from "./../bots/commands/CommandHandler";
 import { getMongoStaticCommands } from "./staticCommands";
 import mongoose from "mongoose";
@@ -12,6 +13,10 @@ const registerStaticCommands = async () => {
   staticCommands.forEach((cmd) => {
     try {
       CommandHandler.registerStaticCommand(cmd.aliases, cmd.message);
+
+      if (cmd.auto) {
+        addAutoMessage(cmd.message);
+      }
     } catch (error) {
       if (error instanceof RegisterError) {
         mongooseLogger.warn(

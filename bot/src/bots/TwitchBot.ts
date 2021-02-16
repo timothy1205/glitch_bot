@@ -1,3 +1,4 @@
+import { aknowledgeMessage } from "./../auto_messages";
 import { Client, Options } from "tmi.js";
 import IBot from "./IBot";
 import IUser from "./IUser";
@@ -43,6 +44,8 @@ class TwitchBot extends IBot {
 
       if (userstate["user-id"])
         acknowledgeChatter(userstate["user-id"], user.getPermission());
+      if (userstate.username !== process.env.TWITCH_USERNAME)
+        aknowledgeMessage();
     });
 
     this.connect();

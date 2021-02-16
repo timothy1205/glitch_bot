@@ -1,7 +1,12 @@
+import { removeAutoMessage } from "./../auto_messages";
 import StaticCommandModel from "./models/StaticCommandModel";
 
 export const getMongoStaticCommands = () => {
   return StaticCommandModel.find({});
+};
+
+export const getMongoStaticCommand = (alias: string) => {
+  return StaticCommandModel.findOne({ aliases: alias });
 };
 
 export const setMongoStaticCommand = async (
@@ -16,5 +21,10 @@ export const setMongoStaticCommand = async (
 };
 
 export const deleteMongoStaticCommand = async (alias: string) => {
-  return StaticCommandModel.deleteOne({ aliases: alias });
+  const staticCommand = await getMongoStaticCommand(alias);
+
+  if (staticCommand) {
+    removeAutoMessage(staticCommand.message);
+    return staticCommand.deleteOne();
+  }
 };

@@ -1,3 +1,5 @@
+import { addAutoMessage, removeAutoMessage } from "./../../../auto_messages";
+import { getMongoStaticCommand } from "./../../../mongo/staticCommands";
 import { SubCommandContainer, CommandArguments } from "../Command";
 import Command from "../Command";
 import CommandHandler, { Permission } from "../CommandHandler";
@@ -59,6 +61,75 @@ CommandHandler.queueDefaultCommand(
             } else {
               throw error;
             }
+          }
+        },
+      })
+    )
+    .addCommand(
+      new Command({
+        permission: Permission.MOD,
+        aliases: ["auto"],
+        args: [
+          { arg: CommandArguments.STRING, name: "alias" },
+          {
+            arg: CommandArguments.STRING,
+            name: "state [on/off]",
+            optional: true,
+          },
+        ],
+        callback: async (caller, _channel, _alias, data, bot) => {
+          const [alias, inputState] = data as [string, string | undefined];
+
+          const staticCommand = CommandHandler.getStaticCommand(alias);
+          const mongoStaticCommand = await getMongoStaticCommand(alias);
+
+          if (staticCommand && mongoStaticCommand) {
+            const state = inputState
+              ? inputState === "on"
+                ? true
+                : false
+              : !mongoStaticCommand.auto;
+
+            mongoStaticCommand.auto = state;
+            await mongoStaticCommand.save();
+
+            if (state) {
+              addAutoMessage(mongoStaticCommand.message);
+            } else {
+              removeAutoMessage(mongoStaticCommand.message);
+            }
+
+            bot.reply(
+              caller,
+              `command will ${
+                state ? "now" : "no longer"
+              } be sent automatically!`
+            );
+          } else {
+            bot.reply(caller, "invalid command!");
+          }
+        },
+      })
+    )
+    .addCommand(
+      new Command({
+        permission: Permission.MOD,
+        aliases: ["check"],
+        args: [{ arg: CommandArguments.STRING, name: "alias" }],
+        callback: async (caller, _channel, _alias, data, bot) => {
+          const [alias] = data as [string];
+
+          const mongoStaticCommand = await getMongoStaticCommand(alias);
+
+          if (mongoStaticCommand) {
+            bot.reply(
+              caller,
+              `command will ${
+                mongoStaticCommand.auto ? "" : "not"
+              } be sent automatically!`
+            );
+          } else {
+            bot.reply(caller, "invalid command!");
           }
         },
       })

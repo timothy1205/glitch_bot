@@ -154,7 +154,9 @@ export default class CommandHandler {
     }
   }
 
-  public static getStaticCommand(alias: string) {
+  public static getStaticCommand(
+    alias: string
+  ): Command<StaticCallback> | undefined {
     return CommandHandler.staticCommands[alias];
   }
 
