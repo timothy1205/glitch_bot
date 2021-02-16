@@ -1,6 +1,7 @@
 import { twitchBotLogger } from "./logging";
 import Queue, { QueueNode } from "./Queue";
 import twitchBot from "./bots/TwitchBot";
+import { isBroadcasterLive } from "./twitch_api";
 
 const timerInterval = 20;
 const maxMessageIgnoreCount = 100;
@@ -25,7 +26,10 @@ export const removeAutoMessage = (message: string) => {
   messageQueue.remove(message);
 };
 
-export const sendNextMessage = () => {
+export const sendNextMessage = async () => {
+  if (process.env.NODE_ENV !== "development" && !(await isBroadcasterLive()))
+    return;
+
   const messageNode = messageQueue.dequeue() as QueueNode<string> | undefined;
   console.log(messageNode);
   if (messageNode) {
