@@ -420,10 +420,7 @@ export default class CommandHandler {
         : arg
     );
     // Remove command from args
-    const alias = args
-      .splice(0, 1)[0]
-      .toLowerCase()
-      .substring(this.commandPrefix.length);
+    const alias = args.splice(0, 1)[0].substring(this.commandPrefix.length);
 
     return [alias, args];
   }
