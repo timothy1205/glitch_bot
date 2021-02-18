@@ -31,7 +31,6 @@ export const sendNextMessage = async () => {
     return;
 
   const messageNode = messageQueue.dequeue() as QueueNode<string> | undefined;
-  console.log(messageNode);
   if (messageNode) {
     twitchBot.sendChannelMessage(messageNode.getData());
     messageQueue.enqueue(messageNode);
