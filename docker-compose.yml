@@ -16,14 +16,12 @@ services:
       LOG_LEVEL: info
     ports:
       - 8081:8081
-    restart: always
   mongo:
     image: mongo
     volumes:
       - ./data/db:/data/db
     ports:
       - 27017:27017
-    restart: always
   ngrok:
     image: wernight/ngrok
     ports:
