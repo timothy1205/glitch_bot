@@ -4,6 +4,7 @@ import { getMongoStaticCommands } from "./staticCommands";
 import mongoose from "mongoose";
 import { mongooseLogger } from "../logging";
 import CommandHandler from "../bots/commands/CommandHandler";
+import config from "../config";
 
 const registerStaticCommands = async () => {
   mongooseLogger.info("Registering static commands stored in MongoDB!");
@@ -27,12 +28,7 @@ const registerStaticCommands = async () => {
   });
 };
 
-if (!process.env.MONGO_URL) {
-  mongooseLogger.error("Env MONGO_URL not specified!");
-  process.exit(1);
-}
-
-mongoose.connect(process.env.MONGO_URL, {
+mongoose.connect(config.mongo_url, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -43,7 +39,7 @@ connection.on("error", (err) => mongooseLogger.error(err));
 
 connection.on("open", async () => {
   mongooseLogger.info(
-    `Successfully connected to MongoDB (${process.env.MONGO_URL})`
+    `Successfully connected to MongoDB (${config.mongo_url})`
   );
   registerStaticCommands();
 });
