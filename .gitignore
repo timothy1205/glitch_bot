@@ -2,6 +2,7 @@ bot/node_modules
 bot/dist
 bot/logs
 bot/.env
+bot/config.json
 
 *.log
 data

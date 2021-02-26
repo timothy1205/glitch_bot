@@ -1,0 +1,23 @@
+{
+  "mongo_url": "mongodb://mongo:27017/db",
+  "owner_id": "12345678",
+  "twitch_username": "username",
+  "tmi_oauth_token": "oauth:something",
+  "twitch_client_id": "id",
+  "twitch_client_secret": "secret",
+  "channels": [
+    {
+      "username": "username",
+      "currency_name": "potato",
+      "currency_name_plural": "potatoes",
+      "currency_emoji": ":bug:"
+    }, 
+    {
+      "username": "username",
+      "currency_name": "star",
+      "currency_emoji": "PurpleStar"
+    }
+  ]
+}
+
+

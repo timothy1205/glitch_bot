@@ -5,7 +5,7 @@
   "author": "timothy1205",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon -e ts --exec \"yarn build && node ./dist/main.js\"",
+    "dev": "nodemon -e ts --exec \"yarn build && node ./dist/src/main.js\"",
     "test": "ts-mocha test/**/*.spec.ts",
     "build": "tsc"
   },
