@@ -1,6 +1,7 @@
 import winston from "winston";
 import TwitchCommandHandler from "./bots/commands/TwitchCommandHandler";
 import TwitchBot from "./bots/TwitchBot";
+import { createLogger } from "./logging";
 
 export interface ChannelConfig {
   username: string;
@@ -14,7 +15,7 @@ export default class Channel {
   private twitchBot: TwitchBot;
 
   constructor(channelConfig: ChannelConfig) {
-    this.twitchBotLogger = createLogger(`${channelConfig.username}/twitch/`);
+    this.twitchBotLogger = createLogger(`${channelConfig.username}/twitch`);
 
     const twitchCommandHandler = new TwitchCommandHandler();
     this.twitchBot = new TwitchBot(twitchCommandHandler, channelConfig);
