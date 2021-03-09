@@ -1,51 +1,44 @@
 import { aknowledgeMessage } from "./../auto_messages";
-import { Client, Options } from "tmi.js";
+import { ChatUserstate, Client } from "tmi.js";
 import IBot from "./IBot";
 import IUser from "./IUser";
-import { twitchBotLogger } from "../logging";
 import TwitchUser from "./TwitchUser";
 import { acknowledgeChatter } from "../passive_stats";
 import TwitchCommandHandler from "./commands/TwitchCommandHandler";
+import config from "../../config.json";
+import channelManager from "../ChannelManager";
+import CommandHandler from "./commands/CommandHandler";
 
-const tmiOptions: Options = {
-  identity: {
-    username: process.env.TWITCH_USERNAME,
-    password: process.env.TMI_OAUTH_TOKEN,
-  },
-  channels: process.env.TWITCH_WORKING_CHANNEL
-    ? [process.env.TWITCH_WORKING_CHANNEL]
-    : [],
-  connection: {
-    reconnect: true,
-  },
-  options: {
-    debug: process.env.NODE_ENV !== "production",
-  },
-  logger: twitchBotLogger,
-};
-
-class TwitchBot extends IBot {
+export default class TwitchBot extends IBot {
   private tmiClient: Client;
+  private _currentMessageListener!: (
+    channel: string,
+    userstate: ChatUserstate,
+    message: string,
+    self: boolean
+  ) => void;
 
-  constructor(twitchCommandHandler: TwitchCommandHandler) {
+  constructor(twitchCommandHandler?: TwitchCommandHandler) {
     super();
 
-    this.setCommandHandler(twitchCommandHandler);
-    twitchCommandHandler.setBot(this);
+    if (twitchCommandHandler) {
+      this.setCommandHandler(twitchCommandHandler);
+      twitchCommandHandler.setBot(this);
+    }
 
-    this.tmiClient = Client(tmiOptions);
-    this.tmiClient.addListener("message", (channel, userstate, msg, self) => {
-      const user = new TwitchUser(userstate);
-      twitchCommandHandler.handleMessage({
-        user,
-        channel,
-        msg,
-      });
-
-      if (userstate["user-id"])
-        acknowledgeChatter(userstate["user-id"], user.getPermission());
-      if (userstate.username !== process.env.TWITCH_USERNAME)
-        aknowledgeMessage();
+    this.tmiClient = Client({
+      identity: {
+        username: config.twitch_username,
+        password: config.tmi_oauth_token,
+      },
+      channels: config.channels.map((channel) => channel.username),
+      connection: {
+        reconnect: true,
+      },
+      options: {
+        debug: process.env.NODE_ENV === "development",
+      },
+      logger: channelManager.miscLogger,
     });
 
     this.connect();
@@ -68,7 +61,32 @@ class TwitchBot extends IBot {
   public connect() {
     return this.tmiClient.connect();
   }
-}
 
-const twitchBot = new TwitchBot(new TwitchCommandHandler());
-export default twitchBot;
+  public setCommandHandler(commandHandler: CommandHandler) {
+    super.setCommandHandler(commandHandler);
+
+    this.tmiClient.removeListener("message", this._currentMessageListener);
+    this.tmiClient.addListener(
+      "message",
+      this._messageListenerCreator(commandHandler)
+    );
+  }
+
+  private _messageListenerCreator(commandHandler: CommandHandler) {
+    this._currentMessageListener = (channel, userstate, msg) => {
+      const user = new TwitchUser(userstate);
+      commandHandler.handleMessage({
+        user,
+        channel,
+        msg,
+      });
+
+      if (userstate["user-id"])
+        acknowledgeChatter(userstate["user-id"], user.getPermission());
+      if (userstate.username !== process.env.TWITCH_USERNAME)
+        aknowledgeMessage();
+    };
+
+    return this._currentMessageListener;
+  }
+}
