@@ -1,49 +1,84 @@
-import { twitchBotLogger } from "./logging";
 import Queue, { QueueNode } from "./Queue";
-import twitchBot from "./bots/TwitchBot";
 import { isBroadcasterLive } from "./twitch_api";
+import channelManager from "./ChannelManager";
+
+interface AutoMessageChannelData {
+  timer?: NodeJS.Timeout | number;
+  queue: Queue;
+  ignoreCount: number;
+}
+const channelData: { [channel: string]: AutoMessageChannelData } = {};
 
 const timerInterval = 20;
 const maxMessageIgnoreCount = 100;
 
-const messageQueue = new Queue();
+export const aknowledgeMessage = (usernmae: string) => {
+  channelData[usernmae].ignoreCount++;
 
-let messageIgnoreCount = 0;
-export const aknowledgeMessage = () => {
-  messageIgnoreCount++;
-
-  if (messageIgnoreCount >= maxMessageIgnoreCount) {
-    setupAutoMessageTimerCount();
-    sendNextMessage();
+  if (channelData[usernmae].ignoreCount >= maxMessageIgnoreCount) {
+    setupAutoMessageTimerCount(usernmae);
+    sendNextMessage(usernmae);
   }
 };
 
-export const addAutoMessage = (message: string) => {
-  messageQueue.enqueue(new QueueNode<string>(message));
+export const addAutoMessage = (username: string, message: string) => {
+  channelData[username].queue.enqueue(new QueueNode<string>(message));
 };
 
-export const removeAutoMessage = (message: string) => {
-  messageQueue.remove(message);
+export const removeAutoMessage = (username: string, message: string) => {
+  channelData[username].queue.remove(message);
 };
 
-export const sendNextMessage = async () => {
-  if (process.env.NODE_ENV !== "development" && !(await isBroadcasterLive()))
+export const sendNextMessage = async (username: string) => {
+  const queue = channelData[username].queue;
+
+  if (
+    process.env.NODE_ENV !== "development" &&
+    !(await isBroadcasterLive(username))
+  )
     return;
 
-  const messageNode = messageQueue.dequeue() as QueueNode<string> | undefined;
+  const messageNode = queue.dequeue() as QueueNode<string> | undefined;
   if (messageNode) {
-    twitchBot.sendChannelMessage(messageNode.getData());
-    messageQueue.enqueue(messageNode);
+    channelManager.twitchBot.sendChannelMessage(
+      messageNode.getData(),
+      username
+    );
+    queue.enqueue(messageNode);
   }
 };
 
-let mainTimer: NodeJS.Timeout;
-export const setupAutoMessageTimerCount = () => {
-  twitchBotLogger.info(
+const setupOrResetData = (username: string) => {
+  if (!channelData[username]) {
+    channelData[username] = {
+      ignoreCount: 0,
+      queue: new Queue(),
+    };
+  } else {
+    channelData[username].ignoreCount = 0;
+  }
+};
+
+const setupOrResetTimer = (username: string) => {
+  const timer = channelData[username].timer;
+  if (timer) clearInterval(timer as NodeJS.Timeout);
+  channelData[username].timer = setInterval(
+    sendNextMessage,
+    timerInterval * 60 * 1000
+  );
+};
+
+export const setupAutoMessageTimerCount = (username?: string) => {
+  channelManager.miscLogger.info(
     "Starting/resetting twitch auto message timer and message count!"
   );
 
-  if (mainTimer) clearInterval(mainTimer);
-  mainTimer = setInterval(sendNextMessage, timerInterval * 60 * 1000);
-  messageIgnoreCount = 0;
+  if (username) {
+    setupOrResetData(username);
+  }
+  for (let key in channelManager.channels) {
+    const loopUsername = channelManager.channels[key].twitchConfig.username;
+    setupOrResetData(loopUsername);
+    setupOrResetTimer(loopUsername);
+  }
 };
