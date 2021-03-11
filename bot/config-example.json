@@ -10,7 +10,12 @@
       "username": "username",
       "currency_name": "potato",
       "currency_name_plural": "potatoes",
-      "currency_emoji": ":bug:"
+      "currency_emoji": ":bug:",
+      "pointTimerInterval": 20,
+      "resetTimerInterval": 5,
+      "watchTimerInterval": 5,
+      "watchMultiplier": 4,
+      "chatMultiplier": 1
     }, 
     {
       "username": "username",
