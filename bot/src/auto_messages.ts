@@ -9,6 +9,7 @@ interface AutoMessageChannelData {
 }
 const channelData: { [channel: string]: AutoMessageChannelData } = {};
 
+// TODO: Make config options
 const timerInterval = 20;
 const maxMessageIgnoreCount = 100;
 
