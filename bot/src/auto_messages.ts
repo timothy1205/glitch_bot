@@ -7,31 +7,43 @@ interface AutoMessageChannelData {
   queue: Queue;
   ignoreCount: number;
 }
-const channelData: { [channel: string]: AutoMessageChannelData } = {};
+const channelData: Map<string, AutoMessageChannelData> = new Map();
 
 // TODO: Make config options
 const timerInterval = 20;
 const maxMessageIgnoreCount = 100;
 
-export const aknowledgeMessage = (usernmae: string) => {
-  channelData[usernmae].ignoreCount++;
+export const aknowledgeMessage = (username: string) => {
+  const data = channelData.get(username);
+  if (!data) return;
 
-  if (channelData[usernmae].ignoreCount >= maxMessageIgnoreCount) {
-    setupAutoMessageTimerCount(usernmae);
-    sendNextMessage(usernmae);
+  data.ignoreCount++;
+
+  if (data.ignoreCount >= maxMessageIgnoreCount) {
+    setupAutoMessageTimerCount(username);
+    sendNextMessage(username);
   }
 };
 
 export const addAutoMessage = (username: string, message: string) => {
-  channelData[username].queue.enqueue(new QueueNode<string>(message));
+  const data = channelData.get(username);
+  if (!data) return;
+
+  data.queue.enqueue(new QueueNode<string>(message));
 };
 
 export const removeAutoMessage = (username: string, message: string) => {
-  channelData[username].queue.remove(message);
+  const data = channelData.get(username);
+  if (!data) return;
+
+  data.queue.remove(message);
 };
 
 export const sendNextMessage = async (username: string) => {
-  const queue = channelData[username].queue;
+  const data = channelData.get(username);
+  if (!data) return;
+
+  const queue = data.queue;
 
   if (
     process.env.NODE_ENV !== "development" &&
@@ -50,23 +62,25 @@ export const sendNextMessage = async (username: string) => {
 };
 
 const setupOrResetData = (username: string) => {
-  if (!channelData[username]) {
-    channelData[username] = {
+  const data = channelData.get(username);
+
+  if (!data) {
+    channelData.set(username, {
       ignoreCount: 0,
       queue: new Queue(),
-    };
+    });
   } else {
-    channelData[username].ignoreCount = 0;
+    data.ignoreCount = 0;
   }
 };
 
 const setupOrResetTimer = (username: string) => {
-  const timer = channelData[username].timer;
+  const data = channelData.get(username);
+  if (!data) return;
+
+  const timer = data.timer;
   if (timer) clearInterval(timer as NodeJS.Timeout);
-  channelData[username].timer = setInterval(
-    sendNextMessage,
-    timerInterval * 60 * 1000
-  );
+  data.timer = setInterval(sendNextMessage, timerInterval * 60 * 1000);
 };
 
 export const setupAutoMessageTimerCount = (username?: string) => {
