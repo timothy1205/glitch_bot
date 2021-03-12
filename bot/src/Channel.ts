@@ -8,6 +8,11 @@ export interface ChannelConfig {
   currency_name: string;
   currency_name_plural?: string;
   currency_emoji: string;
+  pointTimerInterval?: number;
+  resetTimerInterval?: number;
+  watchTimerInterval?: number;
+  watchMultiplier?: number;
+  chatMultiplier?: number;
 }
 
 export default class Channel {
