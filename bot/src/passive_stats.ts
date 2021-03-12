@@ -2,6 +2,7 @@ import { isBroadcasterLive, getChatterHelixUsers } from "./twitch_api";
 import { Permission } from "./bots/commands/CommandHandler";
 import { twitchBotLogger } from "./logging";
 import { addPoints, addWatchTime } from "./mongo/models/UserModel";
+import config from "../config.json";
 
 // Intervals in minutes
 const timerInterval = 20;
@@ -25,9 +26,17 @@ interface Chatter {
   points: number;
   acknowledged: boolean;
 }
-let chatters: { [twitchId: string]: Chatter } = {};
 
-const distributeWatchPoints = async () => {
+interface ChannelData {
+  mainTimer?: NodeJS.Timeout | number;
+  resetTimer?: NodeJS.Timeout | number;
+  watchTimer?: NodeJS.Timeout | number;
+  chatters: { [twitchId: string]: Chatter };
+}
+
+const channelData: Map<string, ChannelData> = new Map();
+
+const distributeWatchPoints = async (username: string) => {
   const promises: Array<Promise<any>> = [];
   const helixUsers = await getChatterHelixUsers();
   if (helixUsers) {
@@ -35,14 +44,16 @@ const distributeWatchPoints = async () => {
       // Don't give points to the bot
       if (user.name === process.env.TWITCH_USERNAME) return;
 
-      promises.push(addPoints({ twitchId: user.id }, watchMultiplier));
+      promises.push(
+        addPoints({ channel: username, twitchId: user.id }, watchMultiplier)
+      );
     });
 
     return Promise.all(promises);
   }
 };
 
-const distributeChatPoints = () => {
+const distributeChatPoints = (username: string) => {
   const promises: Array<Promise<any>> = [];
   for (const twitchId in chatters) {
     promises.push(
@@ -60,7 +71,11 @@ const distributeChatPoints = () => {
   return Promise.all(promises);
 };
 
-const getOrCreateChatter = (twitchId: string, permission: Permission) => {
+const getOrCreateChatter = (
+  username: string,
+  twitchId: string,
+  permission: Permission
+) => {
   if (chatters[twitchId]) return chatters[twitchId];
 
   const chatter: Chatter = { permission, points: 0, acknowledged: false };
@@ -68,23 +83,23 @@ const getOrCreateChatter = (twitchId: string, permission: Permission) => {
   return chatter;
 };
 
-const resetAcknowledgements = () => {
+const resetAcknowledgements = (username: string) => {
   twitchBotLogger.info("Resetting acknowledgements...");
   for (const twitchId in chatters) {
     chatters[twitchId].acknowledged = false;
   }
 };
 
-const distributePoints = async () => {
+const distributePoints = async (username: string) => {
   if (process.env.NODE_ENV !== "development" && !(await isBroadcasterLive()))
     return;
 
   twitchBotLogger.info("Distributing points...");
-  await distributeWatchPoints();
-  await distributeChatPoints();
+  await distributeWatchPoints(username);
+  await distributeChatPoints(username);
 };
 
-const distibuteWatchTime = async () => {
+const distibuteWatchTime = async (username: string) => {
   if (process.env.NODE_ENV !== "development" && !(await isBroadcasterLive()))
     return;
 
@@ -96,7 +111,7 @@ const distibuteWatchTime = async () => {
       // Don't give points to the bot
       if (user.name === process.env.TWITCH_USERNAME) return;
 
-      addWatchTime({ twitchId: user.id }, watchTimeInterval);
+      addWatchTime({ channel: username, twitchId: user.id }, watchTimeInterval);
     });
   }
 };
