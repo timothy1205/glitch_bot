@@ -1,3 +1,4 @@
+import { HelixUser } from "twitch";
 import CommandHandler from "../CommandHandler";
 import Command from "../Command";
 import { Permission } from "../CommandHandler";
@@ -11,8 +12,9 @@ import {
   InvalidPointsError,
   resetAllPoints,
 } from "../../../mongo/models/UserModel";
-import { formatPoints } from "../../../utils";
+import { arrayToMap, formatPoints } from "../../../utils";
 import { twitchAPI } from "../../../twitch_api";
+import { twitchBotLogger } from "../../../logging";
 
 CommandHandler.queueDefaultCommand(
   new Command({
@@ -72,13 +74,27 @@ CommandHandler.queueDefaultCommand(
       let response = `Top 5 Viewers: `;
       const users = await getTopPoints();
       const twitchIds = users.map((user) => user.twitchId);
-      const twitchNames = await (
-        await twitchAPI.helix.users.getUsersByIds(twitchIds)
-      ).map((helixUser) => helixUser.displayName);
+      const helixUserMap = arrayToMap<string, HelixUser>(
+        await twitchAPI.helix.users.getUsersByIds(twitchIds),
+        (user) => user.id
+      );
 
-      twitchNames.forEach((name, index) => {
-        response += `${name} [${users[index].points || 0}]${
-          index !== twitchNames.length - 1 ? ", " : ""
+      // Filter out any non-existing accounts
+      // Guess deleting them invalidates the ID?
+      const usersFiltered = users.filter((user) =>
+        helixUserMap.get(user.twitchId)
+      );
+
+      usersFiltered.forEach((user, index) => {
+        const name = helixUserMap.get(user.twitchId)?.displayName;
+        if (!name) {
+          // Shouldn't happen with filter, but just in case
+          twitchBotLogger.error("Unexpectedly recieved undefined name");
+          return;
+        }
+
+        response += `${name} [${user.points || 0}]${
+          index !== usersFiltered.length - 1 ? ", " : ""
         }`;
       });
 
