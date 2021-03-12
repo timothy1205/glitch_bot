@@ -61,3 +61,14 @@ export const formatWatchTime = (minutes: number) => {
 export const millisecondsToMinutes = (milliseconds: number) => {
   return milliseconds / (1000 * 60);
 };
+
+// K = key, V = value
+export const arrayToMap = <K, V>(array: V[], func: (value: V) => K) => {
+  const map: Map<K, V> = new Map();
+
+  array.forEach((value) => {
+    map.set(func(value), value);
+  });
+
+  return map;
+};
