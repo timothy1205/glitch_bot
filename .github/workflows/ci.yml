@@ -1,0 +1,26 @@
+name: CI
+
+on: 
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Push to production
+        uses: appleboy/ssh-actions@master
+        with: 
+          host: ${{ secrets.HOST  }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          run: |
+            cd ${{ secrets.PROJECT_PATH  }}
+            docker-compose -f ${{ secrets.DC_FILE }} build
+            docker-compose -f ${{ secrets.DC_FILE }} up -d
+
