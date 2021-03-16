@@ -14,6 +14,19 @@ jobs:
       - name: Grab changes
         uses: actions/checkout@v2
 
+      - name: Run mocha tests 
+        uses: appleboy/ssh-action@master
+        with: 
+          host: ${{ secrets.HOST  }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          run: |
+            cd ${{ secrets.PROJECT_PATH  }}/bot
+            yarn
+            yarn test
+
+
       - name: Deploy to docker-compose
         uses: appleboy/ssh-action@master
         with: 
