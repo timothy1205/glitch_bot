@@ -4,21 +4,22 @@ import Channel, { ChannelConfig } from "./Channel";
 import { createLogger } from "./logging";
 
 class ChannelManager {
-  private _channels: { [username: string]: Channel } = {};
+  private _channels: Map<string, Channel>;
   private _miscLogger: winston.Logger;
   private _twitchBot: TwitchBot;
 
   constructor() {
+    this._channels = new Map();
     this._miscLogger = createLogger("misc");
     this._twitchBot = new TwitchBot();
   }
 
   public createChannel(channelConfig: ChannelConfig) {
-    this._channels[channelConfig.username] = new Channel(channelConfig);
+    this._channels.set(channelConfig.username, new Channel(channelConfig));
   }
 
   public getChannel(username: string) {
-    return this._channels[username];
+    return this._channels.get(username);
   }
 
   public get channels() {
