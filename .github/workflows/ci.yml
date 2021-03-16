@@ -21,7 +21,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          run: |
+          script: |
             cd ${{ secrets.PROJECT_PATH  }}/bot
             yarn
             yarn test
@@ -34,7 +34,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
-          run: |
+          script: |
             cd ${{ secrets.PROJECT_PATH  }}
             docker-compose -f ${{ secrets.DC_FILE }} build
             docker-compose -f ${{ secrets.DC_FILE }} up -d
