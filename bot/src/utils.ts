@@ -29,7 +29,7 @@ const minPerWeek = 10080;
 const minPerDay = 1440;
 const minPerHour = 60;
 
-const timeToString = (num: number, label: string, suffix: string = " ") => {
+const timeToString = (num: number, label: string) => {
   if (!num) return "";
 
   num = Math.round(num);
