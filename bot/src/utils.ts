@@ -1,3 +1,6 @@
+import config from "../config.json";
+import channelManager from "./ChannelManager";
+
 // Takes two arrays and combines them into a single array of objects
 // Each object contains a left/right value corresponding to the given array type or undefined.
 export function combineArrays<L, R>(leftArray: L[], rightArray: R[]) {
@@ -11,10 +14,12 @@ export function combineArrays<L, R>(leftArray: L[], rightArray: R[]) {
   return combined;
 }
 
-export const formatPoints = (points: number) => {
-  const currency = process.env.CURRENCY_NAME || "point";
-  const currencyPlural = process.env.CURRENCY_NAME_PLURAL || currency + "s";
-  const emote = process.env.CURRENCY_EMOJI || ":moneybag:";
+export const formatPoints = (username: string, points: number) => {
+  const { twitchConfig } = channelManager.getChannel(username);
+
+  const currency = twitchConfig.currency_name || "point";
+  const currencyPlural = twitchConfig.currency_name_plural || currency + "s";
+  const emote = twitchConfig.currency_emoji || ":moneybag:";
   return `${points} ${points != 1 ? currencyPlural : currency} ${emote}`;
 };
 
