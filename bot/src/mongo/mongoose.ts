@@ -4,24 +4,25 @@ import { getMongoStaticCommands } from "./staticCommands";
 import mongoose from "mongoose";
 import { mongooseLogger } from "../logging";
 import CommandHandler from "../bots/commands/CommandHandler";
-import config from "../config";
+import config from "../../config.json";
+import channelManager from "../ChannelManager";
 
-const registerStaticCommands = async () => {
-  mongooseLogger.info("Registering static commands stored in MongoDB!");
+const registerStaticCommands = async (username: string) => {
+  mongooseLogger.info(`Registering static commands for '${username}'`);
 
-  const staticCommands = await getMongoStaticCommands();
+  const staticCommands = await getMongoStaticCommands(username);
 
   staticCommands.forEach((cmd) => {
     try {
       CommandHandler.registerStaticCommand(cmd.aliases, cmd.message);
 
       if (cmd.auto) {
-        addAutoMessage(cmd.message);
+        addAutoMessage(username, cmd.message);
       }
     } catch (error) {
       if (error instanceof RegisterError) {
         mongooseLogger.warn(
-          `Failed to register static command: ${cmd.aliases} ${cmd.aliases}`
+          `Failed to register static command for ${username}: ${cmd.aliases} ${cmd.message}`
         );
       }
     }
@@ -41,7 +42,10 @@ connection.on("open", async () => {
   mongooseLogger.info(
     `Successfully connected to MongoDB (${config.mongo_url})`
   );
-  registerStaticCommands();
+
+  channelManager.channels.forEach(({ twitchConfig: { username } }) => {
+    registerStaticCommands(username);
+  });
 });
 
 if (process.env.NODE_ENV === "development") {
