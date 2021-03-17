@@ -5,7 +5,7 @@ import { ClientCredentialsAuthProvider } from "twitch-auth";
 import { WebHookListener, SimpleAdapter } from "twitch-webhooks";
 import { NgrokAdapter } from "twitch-webhooks-ngrok";
 import config from "../config.json";
-import channelManager from "./ChannelManager";
+import channelManager, { InvalidChannelError } from "./ChannelManager";
 
 export const twitchAPI = new ApiClient({
   authProvider: new ClientCredentialsAuthProvider(
@@ -29,33 +29,16 @@ export const getChatterHelixUsers = async (username: string) => {
   return twitchAPI.helix.users.getUsersByNames(names);
 };
 
-type TwitchUsernameOrID =
-  | {
-      username: string;
-    }
-  | { twitchId: string };
-
 const broadcasters: Map<string, HelixUser> = new Map();
-const getBroadcaster = async (usernameOrID: TwitchUsernameOrID) => {
+const getBroadcaster = async (username: string) => {
   let broadcaster: HelixUser | null | undefined;
-  if ("username" in usernameOrID)
-    broadcaster = broadcasters.get(usernameOrID.username);
-  else broadcaster = broadcasters.get(usernameOrID.twitchId);
+  broadcaster = broadcasters.get(username);
 
   if (!broadcaster) {
-    if ("username" in usernameOrID)
-      broadcaster = await twitchAPI.helix.users.getUserByName(
-        usernameOrID.username
-      );
-    else
-      broadcaster = await twitchAPI.helix.users.getUserById(
-        usernameOrID.twitchId
-      );
+    broadcaster = await twitchAPI.helix.users.getUserByName(username);
 
     if (!broadcaster) {
-      throw new Error(
-        "Failed to get broadcaster. Ensure username/id is correct!"
-      );
+      throw new InvalidChannelError(username);
     }
 
     // Might be uncessary, but cache under name and id
@@ -68,7 +51,7 @@ const getBroadcaster = async (usernameOrID: TwitchUsernameOrID) => {
 
 export const getFollowsByName = async (username: string) => {
   const userPromise = twitchAPI.helix.users.getUserByName(username);
-  const broadcasterPromise = getBroadcaster({ username });
+  const broadcasterPromise = getBroadcaster(username);
 
   const [helixUser, broadcasterHelixUser] = await Promise.all([
     userPromise,
@@ -87,25 +70,12 @@ export const getFollowsByName = async (username: string) => {
   }
 };
 
-export const getFollowsByID = async (twitchId: string) => {
-  const broadcasterHelixUser = await getBroadcaster({ twitchId });
-  if (broadcasterHelixUser) {
-    const paginatedFollowUser = await twitchAPI.helix.users.getFollows({
-      user: twitchId,
-      followedUser: broadcasterHelixUser,
-    });
-    if (paginatedFollowUser.data.length > 0) return;
-
-    return paginatedFollowUser.data[0];
-  }
-};
-
 const registerPermanentSubs = async (username: string) => {
-  const broadcaster = await getBroadcaster({ username });
+  const broadcaster = await getBroadcaster(username);
 
   channelManager
     .getChannel(username)
-    ?.twitchBotLogger.info("Registering permanent subscriptions...");
+    .twitchBotLogger.info("Registering permanent subscriptions...");
 
   await listener.subscribeToFollowsToUser(broadcaster.id, async (follower) => {
     const user = await getOrCreateUser(username, follower.userId);
