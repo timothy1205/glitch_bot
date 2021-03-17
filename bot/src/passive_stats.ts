@@ -45,7 +45,10 @@ const distributeWatchPoints = async (username: string) => {
       if (user.name === process.env.TWITCH_USERNAME) return;
 
       promises.push(
-        addPoints({ channel: username, twitchId: user.id }, watchMultiplier)
+        addPoints(
+          { twitchChannel: username, twitchId: user.id },
+          watchMultiplier
+        )
       );
     });
 
@@ -111,7 +114,10 @@ const distibuteWatchTime = async (username: string) => {
       // Don't give points to the bot
       if (user.name === process.env.TWITCH_USERNAME) return;
 
-      addWatchTime({ channel: username, twitchId: user.id }, watchTimeInterval);
+      addWatchTime(
+        { twitchChannel: username, twitchId: user.id },
+        watchTimeInterval
+      );
     });
   }
 };

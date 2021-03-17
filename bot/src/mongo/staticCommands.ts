@@ -1,21 +1,24 @@
 import { removeAutoMessage } from "./../auto_messages";
 import StaticCommandModel from "./models/StaticCommandModel";
 
-export const getMongoStaticCommands = (channel: string) => {
-  return StaticCommandModel.find({ channel });
+export const getMongoStaticCommands = (username: string) => {
+  return StaticCommandModel.find({ twitchChannel: username });
 };
 
-export const getMongoStaticCommand = (channel: string, alias: string) => {
-  return StaticCommandModel.findOne({ channel, aliases: alias });
+export const getMongoStaticCommand = (username: string, alias: string) => {
+  return StaticCommandModel.findOne({
+    twitchChannel: username,
+    aliases: alias,
+  });
 };
 
 export const setMongoStaticCommand = async (
-  channel: string,
+  username: string,
   aliases: string[],
   message: string
 ) => {
   const staticCommand = new StaticCommandModel();
-  staticCommand.channel = channel;
+  staticCommand.twitchChannel = username;
   staticCommand.aliases = aliases;
   staticCommand.message = message;
 
@@ -23,13 +26,13 @@ export const setMongoStaticCommand = async (
 };
 
 export const deleteMongoStaticCommand = async (
-  channel: string,
+  username: string,
   alias: string
 ) => {
-  const staticCommand = await getMongoStaticCommand(channel, alias);
+  const staticCommand = await getMongoStaticCommand(username, alias);
 
   if (staticCommand) {
-    removeAutoMessage(staticCommand.message);
+    removeAutoMessage(username, staticCommand.message);
     return staticCommand.deleteOne();
   }
 };

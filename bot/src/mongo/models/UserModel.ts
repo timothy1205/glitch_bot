@@ -1,7 +1,7 @@
 import { createSchema, Type, typedModel } from "ts-mongoose";
 
 const userSchema = createSchema({
-  channel: Type.string({ required: true }),
+  twitchChannel: Type.string({ required: true }),
   twitchId: Type.string({ required: true }),
   discordId: Type.string(),
   points: Type.number({ default: 0 }),
@@ -15,10 +15,10 @@ const UserModel = typedModel("user", userSchema);
 export default UserModel;
 
 type IDTwitchOrDiscord =
-  | ({ channel: string } & { twitchId: string })
+  | ({ twitchChannel: string } & { twitchId: string })
   | { discordId: string };
 type TwitchIDOrUser =
-  | ({ channel: string } & { twitchId: string })
+  | ({ twitchChannel: string } & { twitchId: string })
   | { user: typeof UserModel };
 
 export const getUser = (id: IDTwitchOrDiscord) => {
@@ -44,7 +44,7 @@ export const createUser = async (opt: UserCreateOptions) => {
 };
 
 export const getOrCreateUser = async (channel: string, twitchId: string) => {
-  const user = await getUser({ channel, twitchId });
+  const user = await getUser({ twitchChannel: channel, twitchId });
   if (user) return user;
   else return createUser({ channel, twitchId });
 };
@@ -80,12 +80,14 @@ export const addPoints = async (id: IDTwitchOrDiscord, points: number) => {
   return sum;
 };
 
-export const getTopPoints = (channel: string) => {
-  return UserModel.find({ channel }).sort({ points: -1 }).limit(5);
+export const getTopPoints = (username: string) => {
+  return UserModel.find({ twitchChannel: username })
+    .sort({ points: -1 })
+    .limit(5);
 };
 
-export const resetAllPoints = (channel: string) => {
-  return UserModel.updateMany({ channel }, { points: 0 });
+export const resetAllPoints = (username: string) => {
+  return UserModel.updateMany({ twitchChannel: username }, { points: 0 });
 };
 
 export const getWatchTime = async (id: IDTwitchOrDiscord) => {
@@ -120,11 +122,11 @@ export const getStatBanned = async (id: IDTwitchOrDiscord) => {
 };
 
 export const setStatBanned = async (
-  channel: string,
+  username: string,
   twitchId: string,
   val: boolean
 ) => {
-  const user = await getOrCreateUser(channel, twitchId);
+  const user = await getOrCreateUser(username, twitchId);
   user.statBanned = val;
   await user.save();
 };
@@ -135,7 +137,7 @@ export const setFollowed = async (
 ) => {
   let user;
   if ("twitchId" in idOrUser) {
-    user = await getOrCreateUser(idOrUser.channel, idOrUser.twitchId);
+    user = await getOrCreateUser(idOrUser.twitchChannel, idOrUser.twitchId);
   } else {
     user = idOrUser.user;
   }
