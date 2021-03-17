@@ -3,6 +3,13 @@ import TwitchBot from "./bots/TwitchBot";
 import Channel, { ChannelConfig } from "./Channel";
 import { createLogger } from "./logging";
 
+export class InvalidChannelError extends Error {
+  constructor(username: string) {
+    super(username);
+    this.message = `Invalid channel: '${username}', is the name correct?`;
+  }
+}
+
 class ChannelManager {
   private _channels: Map<string, Channel>;
   private _miscLogger: winston.Logger;
@@ -19,7 +26,13 @@ class ChannelManager {
   }
 
   public getChannel(username: string) {
-    return this._channels.get(username);
+    const channel = this._channels.get(username);
+
+    if (!channel) {
+      throw new InvalidChannelError(username);
+    }
+
+    return channel;
   }
 
   public get channels() {
