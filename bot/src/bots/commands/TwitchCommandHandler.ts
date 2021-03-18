@@ -1,11 +1,10 @@
 import CommandHandler from "./CommandHandler";
-import IBot from "../IBot";
-import { twitchBotLogger } from "../../logging";
 import { CommandArguments } from "./Command";
+import winston from "winston";
 
 export default class TwitchCommandHandler extends CommandHandler {
-  constructor() {
-    super(twitchBotLogger);
+  constructor(logger: winston.Logger) {
+    super(logger);
 
     this.registerParser(CommandArguments.USER, (original) => {
       if (!original.startsWith("@"))

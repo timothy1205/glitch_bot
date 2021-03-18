@@ -22,7 +22,9 @@ export default class Channel {
 
   constructor(channelConfig: ChannelConfig) {
     this._twitchBotLogger = createLogger(`${channelConfig.username}/twitch`);
-    this._twitchCommandHandler = new TwitchCommandHandler();
+    this._twitchCommandHandler = new TwitchCommandHandler(
+      this._twitchBotLogger
+    );
     this._twitchCommandHandler.setBot(channelManager.twitchBot);
     this._twitchConfig = channelConfig;
   }
