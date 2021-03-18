@@ -1,10 +1,11 @@
 import IUser from "./IUser";
 import { ChatUserstate, Badges } from "tmi.js";
 import { Permission } from "./commands/CommandHandler";
+import config from "../../config.json";
 
 const calculatePerms = (userstate: ChatUserstate) => {
   if (userstate.badges) {
-    if (userstate["user-id"] === process.env.OWNER_ID) return Permission.OWNER;
+    if (userstate["user-id"] === config.owner_id) return Permission.OWNER;
     else if (userstate.badges.broadcaster === "1")
       return Permission.BROADCASTER;
     else if (userstate.mod) return Permission.MOD;
