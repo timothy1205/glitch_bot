@@ -36,4 +36,8 @@ export default class Channel {
   public get twitchConfig() {
     return this._twitchConfig;
   }
+
+  public get twitchCommandHandler() {
+    return this._twitchCommandHandler;
+  }
 }
