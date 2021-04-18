@@ -16,6 +16,7 @@ import { arrayToMap, formatPoints } from "../../../utils";
 import { twitchAPI } from "../../../twitch_api";
 import { twitchBotLogger } from "../../../logging";
 
+/*
 CommandHandler.queueDefaultCommand(
   new Command({
     permission: Permission.USER,
@@ -206,3 +207,5 @@ CommandHandler.queueDefaultCommand(
       })
     )
 );
+
+*/
