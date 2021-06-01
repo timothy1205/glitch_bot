@@ -1,12 +1,7 @@
-import axios from "axios";
 import Command from "../Command";
 import { CommandArguments, SubCommandContainer } from "../Command";
 import { Permission } from "../CommandHandler";
-import {
-  twitchAPI,
-  getFollowsByName,
-  getFollowsByID,
-} from "../../../twitch_api";
+import { twitchAPI, getFollowsByName } from "../../../twitch_api";
 import twitchBot from "../../TwitchBot";
 import {
   getUser,
@@ -170,4 +165,19 @@ twitchBot.getCommandHandler()?.registerCommand(
         },
       })
     )
+);
+
+twitchBot.getCommandHandler()?.registerCommand(
+  new Command({
+    permission: Permission.MOD,
+    aliases: ["shoutout", "so"],
+    args: [{ arg: CommandArguments.STRING, name: "user" }],
+    callback: async (_caller, _channel, _alias, data, _bot) => {
+      const [user] = data as [string];
+
+      twitchBot.sendChannelMessage(
+        `Go checkout ${user}'s channel at https://twitch.tv/${user}`
+      );
+    },
+  })
 );
