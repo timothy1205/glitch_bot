@@ -28,7 +28,7 @@ twitchBot.getCommandHandler()?.registerCommand(
       } else {
         twitchBot.reply(
           caller,
-          `Name: ${helixUser.name}, DisplayName: ${helixUser.displayName}, ID: ${helixUser.id} ${helixUser.type}, Views: ${helixUser.views}`
+          `Name: ${helixUser.name}, Display Name: ${helixUser.displayName}, ID: ${helixUser.id} ${helixUser.type}, Views: ${helixUser.views}`
         );
       }
     },
