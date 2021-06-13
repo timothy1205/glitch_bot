@@ -11,8 +11,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Setup test environment
+      - name: Checkot rep
       - uses: actions/checkout@v2
+
+      - name: Setup NodeJS environment
       - uses: actions/setup-node@v2
 
       - name: Run mocha tests
