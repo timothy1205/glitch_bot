@@ -11,16 +11,17 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkot rep
+      - name: Checkot repo
       - uses: actions/checkout@v2
 
       - name: Setup NodeJS environment
       - uses: actions/setup-node@v2
 
+      - name: Install packages
+        run: cd bot && npm install
+
       - name: Run mocha tests
-        script: |
-          cd bot
-          npm run test
+        run: cd bot && npm run test
 
       - name: Deploy to docker-compose
         uses: appleboy/ssh-action@master
