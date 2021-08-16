@@ -4,7 +4,6 @@ import IBot from "./IBot";
 import IUser from "./IUser";
 import { twitchBotLogger } from "../logging";
 import TwitchUser from "./TwitchUser";
-import { acknowledgeChatter } from "../passive_stats";
 import TwitchCommandHandler from "./commands/TwitchCommandHandler";
 
 const tmiOptions: Options = {
@@ -42,8 +41,6 @@ class TwitchBot extends IBot {
         msg,
       });
 
-      if (userstate["user-id"])
-        acknowledgeChatter(userstate["user-id"], user.getPermission());
       if (userstate.username !== process.env.TWITCH_USERNAME)
         aknowledgeMessage();
     });

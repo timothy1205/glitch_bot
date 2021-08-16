@@ -1,31 +1,12 @@
 import { isBroadcasterLive, getChatterHelixUsers } from "./twitch_api";
-import { Permission } from "./bots/commands/CommandHandler";
 import { twitchBotLogger } from "./logging";
 import { addPoints, addWatchTime } from "./mongo/models/UserModel";
 
 // Intervals in minutes
 const timerInterval = 20;
-const acknowledgeResetInterval = 5;
 const watchTimeInterval = 5;
 
 const watchMultiplier = 4;
-const chatMultiplier = 1;
-
-const pointsPerInterval: Map<Permission, number> = new Map();
-pointsPerInterval.set(Permission.USER, 1);
-pointsPerInterval.set(Permission.FOLLOWER, 1);
-pointsPerInterval.set(Permission.SUBSCRIBER, 2);
-pointsPerInterval.set(Permission.VIP, 2);
-pointsPerInterval.set(Permission.MOD, 2);
-pointsPerInterval.set(Permission.BROADCASTER, 2);
-pointsPerInterval.set(Permission.OWNER, 2);
-
-interface Chatter {
-  permission: Permission;
-  points: number;
-  acknowledged: boolean;
-}
-let chatters: { [twitchId: string]: Chatter } = {};
 
 const distributeWatchPoints = async () => {
   const promises: Array<Promise<any>> = [];
@@ -42,46 +23,12 @@ const distributeWatchPoints = async () => {
   }
 };
 
-const distributeChatPoints = () => {
-  const promises: Array<Promise<any>> = [];
-  for (const twitchId in chatters) {
-    promises.push(
-      addPoints(
-        { twitchId },
-        chatMultiplier *
-          chatters[twitchId].points *
-          chatters[twitchId].points *
-          (pointsPerInterval.get(chatters[twitchId].permission) || 1)
-      )
-    );
-  }
-
-  chatters = {};
-  return Promise.all(promises);
-};
-
-const getOrCreateChatter = (twitchId: string, permission: Permission) => {
-  if (chatters[twitchId]) return chatters[twitchId];
-
-  const chatter: Chatter = { permission, points: 0, acknowledged: false };
-  chatters[twitchId] = chatter;
-  return chatter;
-};
-
-const resetAcknowledgements = () => {
-  twitchBotLogger.info("Resetting acknowledgements...");
-  for (const twitchId in chatters) {
-    chatters[twitchId].acknowledged = false;
-  }
-};
-
 const distributePoints = async () => {
   if (process.env.NODE_ENV !== "development" && !(await isBroadcasterLive()))
     return;
 
   twitchBotLogger.info("Distributing points...");
   await distributeWatchPoints();
-  await distributeChatPoints();
 };
 
 const distibuteWatchTime = async () => {
@@ -102,17 +49,10 @@ const distibuteWatchTime = async () => {
 };
 
 let mainTimer: NodeJS.Timeout;
-let chatResetTimer: NodeJS.Timeout;
 let watchTimeTimer: NodeJS.Timeout;
 export const setupPassivePointTimer = () => {
   if (mainTimer) clearInterval(mainTimer);
   mainTimer = setInterval(distributePoints, timerInterval * 60 * 1000);
-
-  if (chatResetTimer) clearInterval(chatResetTimer);
-  chatResetTimer = setInterval(
-    resetAcknowledgements,
-    acknowledgeResetInterval * 60 * 1000
-  );
 
   if (watchTimeTimer) clearInterval(watchTimeTimer);
   watchTimeTimer = setInterval(
@@ -120,18 +60,3 @@ export const setupPassivePointTimer = () => {
     watchTimeInterval * 60 * 1000
   );
 };
-
-export const acknowledgeChatter = (
-  twitchId: string,
-  permission: Permission
-) => {
-  const chatter = getOrCreateChatter(twitchId, permission);
-
-  if (!chatter.acknowledged) {
-    twitchBotLogger.info(`Acknowledging chatter: ${twitchId}, ${permission}`);
-    chatter.acknowledged = true;
-    chatter.points++;
-  }
-};
-
-// Add global link black/whitelisting system !url allow/block (all urls besides some hard coded urls/domains blacklisted by default)
