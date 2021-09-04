@@ -92,6 +92,8 @@ const registerPermanentSubs = async () => {
   twitchBotLogger.info("Registering permanent subscriptions...");
 
   await listener.subscribeToFollowsToUser(broadcaster.id, async (follower) => {
+    if (!twitchBot.useFollowNotifications) return;
+
     const user = await getOrCreateUser(follower.userId);
 
     if (!user.usedFollowNotification) {

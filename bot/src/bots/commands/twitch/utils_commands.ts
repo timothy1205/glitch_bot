@@ -9,6 +9,7 @@ import {
   getStatBanned,
 } from "../../../mongo/models/UserModel";
 import { formatWatchTime, millisecondsToMinutes } from "../../../utils";
+import TwitchBot from "../../TwitchBot";
 
 twitchBot.getCommandHandler()?.registerCommand(
   new Command({
@@ -178,6 +179,31 @@ twitchBot.getCommandHandler()?.registerCommand(
       twitchBot.sendChannelMessage(
         `Go checkout ${user}'s channel at https://twitch.tv/${user}`
       );
+    },
+  })
+);
+
+twitchBot.getCommandHandler()?.registerCommand(
+  new Command({
+    permission: Permission.MOD,
+    aliases: ["follows"],
+    args: [{ arg: CommandArguments.STRING, name: "status" }],
+    callback: async (caller, _channel, _alias, data, bot) => {
+      const [status] = data as [string];
+
+      switch (status) {
+        case "on":
+          (bot as typeof twitchBot).useFollowNotifications = true;
+          break;
+        case "off":
+          (bot as typeof twitchBot).useFollowNotifications = false;
+          break;
+        default:
+          twitchBot.reply(caller, 'valid options are "on" and "off"');
+          return;
+      }
+
+      twitchBot.reply(caller, `follow notifications are now: ${status}`);
     },
   })
 );

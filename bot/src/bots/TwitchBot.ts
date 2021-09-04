@@ -25,6 +25,7 @@ const tmiOptions: Options = {
 
 class TwitchBot extends IBot {
   private tmiClient: Client;
+  public useFollowNotifications: boolean;
 
   constructor(twitchCommandHandler: TwitchCommandHandler) {
     super();
@@ -46,6 +47,8 @@ class TwitchBot extends IBot {
     });
 
     this.connect();
+
+    this.useFollowNotifications = true;
   }
 
   public sendChannelMessage(msg: string, channel?: string): Promise<any> {
