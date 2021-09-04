@@ -340,7 +340,7 @@ export default class CommandHandler {
       if (error instanceof Error) {
         error.message = str + error.message;
         this.logger.error(error);
-      } else this.logger.error(str + error.toString());
+      } else this.logger.error(str);
     }
   }
 
