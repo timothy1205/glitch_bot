@@ -32,10 +32,7 @@ if (!process.env.MONGO_URL) {
   process.exit(1);
 }
 
-mongoose.connect(process.env.MONGO_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose.connect(process.env.MONGO_URL);
 
 export const connection = mongoose.connection;
 
