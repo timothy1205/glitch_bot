@@ -1,12 +1,7 @@
 import assert from "assert";
 import { ApiClient, HelixUser } from "twitch";
 import { ClientCredentialsAuthProvider } from "twitch-auth";
-import {
-  DirectConnectionAdapter,
-  EnvPortAdapter,
-  EventSubListener,
-  ReverseProxyAdapter,
-} from "twitch-eventsub";
+import { EventSubListener, ReverseProxyAdapter } from "twitch-eventsub";
 import { NgrokAdapter } from "twitch-eventsub-ngrok";
 import twitchBot from "./bots/TwitchBot";
 import { twitchBotLogger } from "./logging";
@@ -126,6 +121,7 @@ let listener: EventSubListener;
 // https://d-fischer.github.io/twitch-eventsub/docs/basic-usage/listening-to-events.html
 const setupHooks = async () => {
   assert.ok(process.env.TWITCH_EVENTSUB_SECRET);
+
   if (process.env.NODE_ENV === "development") {
     twitchBotLogger.info("Starting Ngrok listener!");
     listener = new EventSubListener(
@@ -135,15 +131,16 @@ const setupHooks = async () => {
     );
   } else {
     assert.ok(process.env.LISTENER_HOST);
+    assert.ok(process.env.LISTENER_PORT);
 
     twitchBotLogger.info(
       `Starting EventSubListener on ${process.env.LISTENER_HOST}:${process.env.LISTENER_PORT}`
     );
     listener = new EventSubListener(
       twitchAPI,
-      new EnvPortAdapter({
+      new ReverseProxyAdapter({
         hostName: process.env.LISTENER_HOST,
-        variableName: "LISTENER_PORT",
+        port: parseInt(process.env.LISTENER_PORT),
       }),
       process.env.TWITCH_EVENTSUB_SECRET
     );
