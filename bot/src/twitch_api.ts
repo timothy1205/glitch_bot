@@ -1,11 +1,16 @@
-import { getOrCreateUser } from "./mongo/models/UserModel";
-import { twitchBotLogger } from "./logging";
-import twitchBot from "./bots/TwitchBot";
-import { setFollowed } from "./mongo/models/UserModel";
+import assert from "assert";
 import { ApiClient, HelixUser } from "twitch";
 import { ClientCredentialsAuthProvider } from "twitch-auth";
-import { WebHookListener, SimpleAdapter } from "twitch-webhooks";
-import { NgrokAdapter } from "twitch-webhooks-ngrok";
+import {
+  DirectConnectionAdapter,
+  EnvPortAdapter,
+  EventSubListener,
+  ReverseProxyAdapter,
+} from "twitch-eventsub";
+import { NgrokAdapter } from "twitch-eventsub-ngrok";
+import twitchBot from "./bots/TwitchBot";
+import { twitchBotLogger } from "./logging";
+import { getOrCreateUser, setFollowed } from "./mongo/models/UserModel";
 
 export const twitchAPI = new ApiClient({
   authProvider: new ClientCredentialsAuthProvider(
@@ -91,41 +96,62 @@ const registerPermanentSubs = async () => {
 
   twitchBotLogger.info("Registering permanent subscriptions...");
 
-  await listener.subscribeToFollowsToUser(broadcaster.id, async (follower) => {
-    if (!twitchBot.useFollowNotifications) return;
+  try {
+    await listener.subscribeToChannelFollowEvents(
+      broadcaster.id,
+      async (event) => {
+        if (!twitchBot.useFollowNotifications) return;
 
-    const user = await getOrCreateUser(follower.userId);
+        const user = await getOrCreateUser(event.userId);
 
-    if (!user.usedFollowNotification) {
-      twitchBot.sendChannelMessage(
-        `Thanks for the follow @${follower.userDisplayName}! <3`
+        if (!user.usedFollowNotification) {
+          twitchBot.sendChannelMessage(
+            `Thanks for the follow @${event.userDisplayName}! <3`
+          );
+          await setFollowed(user, event.followDate);
+        }
+      }
+    );
+  } catch (error) {
+    if (error instanceof Error) {
+      twitchBotLogger.warn(
+        `Failed to register twitch subscriptions: ${error.message}`
       );
-      await setFollowed(user, follower.followDate);
     }
-  });
+  }
 };
 
-let listener: WebHookListener;
+let listener: EventSubListener;
+// TODO: Setup EventSubLister which needs an SSL Cert
+// https://d-fischer.github.io/twitch-eventsub/docs/basic-usage/listening-to-events.html
 const setupHooks = async () => {
+  assert.ok(process.env.TWITCH_EVENTSUB_SECRET);
   if (process.env.NODE_ENV === "development") {
     twitchBotLogger.info("Starting Ngrok listener!");
-    listener = new WebHookListener(twitchAPI, new NgrokAdapter(), {
-      hookValidity: 60,
-    });
-  } else if (process.env.LISTENER_HOST && process.env.LISTENER_PORT) {
-    twitchBotLogger.info(
-      `Starting Simple Webhook Listener on ${process.env.LISTENER_HOST}:${process.env.LISTENER_PORT}`
-    );
-    listener = new WebHookListener(
+    listener = new EventSubListener(
       twitchAPI,
-      new SimpleAdapter({
+      new NgrokAdapter(),
+      process.env.TWITCH_EVENTSUB_SECRET
+    );
+  } else {
+    assert.ok(process.env.LISTENER_HOST);
+
+    twitchBotLogger.info(
+      `Starting EventSubListener on ${process.env.LISTENER_HOST}:${process.env.LISTENER_PORT}`
+    );
+    listener = new EventSubListener(
+      twitchAPI,
+      new EnvPortAdapter({
         hostName: process.env.LISTENER_HOST,
-        listenerPort: parseInt(process.env.LISTENER_PORT),
-      })
+        variableName: "LISTENER_PORT",
+      }),
+      process.env.TWITCH_EVENTSUB_SECRET
     );
   }
 
   if (listener) {
+    // Clear subscriptions and start fresh...
+    await twitchAPI.helix.eventSub.deleteAllSubscriptions();
     await listener.listen();
     await registerPermanentSubs();
   }
