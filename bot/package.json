@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon -e ts --exec \"yarn build && node ./dist/main.js\"",
-    "test": "ts-mocha test/**/*.spec.ts",
+    "test": "mocha --require ts-node/register test/**/*.spec.ts",
     "build": "tsc"
   },
   "nodemonConfig": {
@@ -25,6 +25,7 @@
   "dependencies": {
     "mongoose": "^6.0.5",
     "tmi.js": "^1.7.1",
+    "ts-node": "^10.2.1",
     "twitch": "^4.6.7",
     "twitch-eventsub": "^4.6.7",
     "twitch-eventsub-ngrok": "^4.6.7",
@@ -38,7 +39,6 @@
     "mocha": "^9.1.1",
     "nodemon": "^2.0.7",
     "source-map-support": "^0.5.19",
-    "ts-mocha": "^8.0.0",
     "typescript": "^4.4.2"
   }
 }
