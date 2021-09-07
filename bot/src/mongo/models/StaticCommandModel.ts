@@ -1,11 +1,19 @@
-import { createSchema, Type, typedModel } from "ts-mongoose";
-import { QueryCursor } from "mongoose";
+import { model, Schema } from "mongoose";
 
-const StaticCommandSchema = createSchema({
-  aliases: Type.array({ required: true }).of(Type.string({ required: true })),
-  message: Type.string({ required: true }),
-  auto: Type.boolean({ default: false }),
+interface StaticCommand {
+  aliases: string[];
+  message: string;
+  auto: boolean;
+}
+
+const staticCommandSchema = new Schema<StaticCommand>({
+  aliases: { type: Array(String), required: true },
+  message: { type: String, required: true },
+  auto: { type: Boolean, default: false },
 });
 
-const StaticCommandModel = typedModel("static_command", StaticCommandSchema);
+const StaticCommandModel = model<StaticCommand>(
+  "static_command",
+  staticCommandSchema
+);
 export default StaticCommandModel;

@@ -1,20 +1,30 @@
-import { createSchema, Type, typedModel } from "ts-mongoose";
+import { model, now, Schema } from "mongoose";
+interface User {
+  twitchId: string;
+  discordId?: string;
+  points?: number;
+  minutesWatched: number;
+  usedFollowNotification: boolean;
+  followDate: Date;
+  statBanned: boolean;
+}
 
-const userSchema = createSchema({
-  twitchId: Type.string({ required: true }),
-  discordId: Type.string(),
-  points: Type.number({ default: 0 }),
-  minutesWatched: Type.number({ default: 0 }),
-  usedFollowNotification: Type.boolean({ default: false }),
-  followDate: Type.date({ required: false }),
-  statBanned: Type.boolean({ default: false }),
+const userSchema = new Schema<User>({
+  twitchId: { type: String, required: true },
+  discordId: { type: String, required: false },
+  points: { type: Number, default: 0 },
+  minutesWatched: { type: Number, default: 0 },
+  usedFollowNotification: { type: Boolean, default: false },
+  followDate: { type: Date, default: now() },
+  statBanned: { type: Boolean, default: false },
 });
 
-const UserModel = typedModel("user", userSchema);
+const UserModel = model<User>("user", userSchema);
 export default UserModel;
 
+type UserType = ReturnType<typeof createUser>;
 type IDTwitchOrDiscord = { twitchId: string } | { discordId: string };
-type TwitchIDOrUser = { twitchId: string } | { user: typeof UserModel };
+type TwitchIDOrUser = { twitchId: string } | { user: UserType };
 
 export const getUser = (id: IDTwitchOrDiscord) => {
   return UserModel.findOne(id);
@@ -123,14 +133,16 @@ export const setFollowed = async (
   idOrUser: TwitchIDOrUser,
   date: Date = new Date()
 ) => {
-  let user;
+  let user: UserType;
   if ("twitchId" in idOrUser) {
-    user = await getOrCreateUser(idOrUser.twitchId);
+    //@ts-ignore
+    user = getOrCreateUser(idOrUser.twitchId) as UserType;
   } else {
     user = idOrUser.user;
   }
 
-  user.usedFollowNotification = true;
-  user.followDate = date;
-  await user.save();
+  const userResolved = await user;
+  userResolved.usedFollowNotification = true;
+  userResolved.followDate = date;
+  await userResolved.save();
 };
