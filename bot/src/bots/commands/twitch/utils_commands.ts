@@ -1,15 +1,14 @@
-import Command from "../Command";
-import { CommandArguments, SubCommandContainer } from "../Command";
-import { Permission } from "../CommandHandler";
-import { twitchAPI, getFollowsByName } from "../../../twitch_api";
-import twitchBot from "../../TwitchBot";
+import assert from "assert";
 import {
+  getStatBanned,
   getUser,
   setStatBanned,
-  getStatBanned,
 } from "../../../mongo/models/UserModel";
+import { getFollowsByName, twitchAPI } from "../../../twitch_api";
 import { formatWatchTime, millisecondsToMinutes } from "../../../utils";
-import TwitchBot from "../../TwitchBot";
+import twitchBot from "../../TwitchBot";
+import Command, { CommandArguments, SubCommandContainer } from "../Command";
+import { Permission } from "../CommandHandler";
 
 twitchBot.getCommandHandler()?.registerCommand(
   new Command({
@@ -57,7 +56,7 @@ twitchBot.getCommandHandler()?.registerCommand(
     permission: Permission.USER,
     aliases: ["uptime", "up"],
     callback: async (caller, _channel, _alias, _data, _bot) => {
-      if (!process.env.TWITCH_WORKING_CHANNEL) return;
+      assert.ok(process.env.TWITCH_WORKING_CHANNEL);
 
       const helixStream = await twitchAPI.helix.streams.getStreamByUserName(
         process.env.TWITCH_WORKING_CHANNEL

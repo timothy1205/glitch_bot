@@ -1,19 +1,20 @@
-import { aknowledgeMessage } from "./../auto_messages";
+import assert from "assert";
 import { Client, Options } from "tmi.js";
+import { twitchBotLogger } from "../logging";
+import { aknowledgeMessage } from "./../auto_messages";
+import TwitchCommandHandler from "./commands/TwitchCommandHandler";
 import IBot from "./IBot";
 import IUser from "./IUser";
-import { twitchBotLogger } from "../logging";
 import TwitchUser from "./TwitchUser";
-import TwitchCommandHandler from "./commands/TwitchCommandHandler";
+
+assert.ok(process.env.TWITCH_WORKING_CHANNEL);
 
 const tmiOptions: Options = {
   identity: {
     username: process.env.TWITCH_USERNAME,
     password: process.env.TMI_OAUTH_TOKEN,
   },
-  channels: process.env.TWITCH_WORKING_CHANNEL
-    ? [process.env.TWITCH_WORKING_CHANNEL]
-    : [],
+  channels: [process.env.TWITCH_WORKING_CHANNEL],
   connection: {
     reconnect: true,
   },
@@ -52,7 +53,8 @@ class TwitchBot extends IBot {
   }
 
   public sendChannelMessage(msg: string, channel?: string): Promise<any> {
-    if (!channel) channel = process.env.TWITCH_WORKING_CHANNEL || "";
+    assert.ok(process.env.TWITCH_WORKING_CHANNEL);
+    if (!channel) channel = process.env.TWITCH_WORKING_CHANNEL;
 
     return this.tmiClient.say(channel, msg);
   }
