@@ -1,9 +1,10 @@
+import assert from "assert";
+import mongoose from "mongoose";
+import CommandHandler from "../bots/commands/CommandHandler";
+import { mongooseLogger } from "../logging";
 import { addAutoMessage } from "./../auto_messages";
 import { RegisterError } from "./../bots/commands/CommandHandler";
 import { getMongoStaticCommands } from "./staticCommands";
-import mongoose from "mongoose";
-import { mongooseLogger } from "../logging";
-import CommandHandler from "../bots/commands/CommandHandler";
 
 const registerStaticCommands = async () => {
   mongooseLogger.info("Registering static commands stored in MongoDB!");
@@ -27,10 +28,7 @@ const registerStaticCommands = async () => {
   });
 };
 
-if (!process.env.MONGO_URL) {
-  mongooseLogger.error("Env MONGO_URL not specified!");
-  process.exit(1);
-}
+assert.ok(process.env.MONGO_URL);
 
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,

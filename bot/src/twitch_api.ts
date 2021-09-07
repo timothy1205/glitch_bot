@@ -7,25 +7,30 @@ import twitchBot from "./bots/TwitchBot";
 import { twitchBotLogger } from "./logging";
 import { getOrCreateUser, setFollowed } from "./mongo/models/UserModel";
 
+assert.ok(process.env.TWITCH_CLIENT_ID);
+assert.ok(process.env.TWITCH_CLIENT_SECRET);
+
 export const twitchAPI = new ApiClient({
   authProvider: new ClientCredentialsAuthProvider(
-    process.env.TWITCH_CLIENT_ID || "",
-    process.env.TWITCH_CLIENT_SECRET || ""
+    process.env.TWITCH_CLIENT_ID,
+    process.env.TWITCH_CLIENT_SECRET
   ),
 });
 
 export const isBroadcasterLive = async () => {
+  assert.ok(process.env.TWITCH_WORKING_CHANNEL);
+
   return (
     (await twitchAPI.helix.streams.getStreamByUserName(
-      process.env.TWITCH_WORKING_CHANNEL || ""
+      process.env.TWITCH_WORKING_CHANNEL
     )) != null
   );
 };
 
 export const getChannelChatters = () => {
-  return twitchAPI.unsupported.getChatters(
-    process.env.TWITCH_WORKING_CHANNEL || ""
-  );
+  assert.ok(process.env.TWITCH_WORKING_CHANNEL);
+
+  return twitchAPI.unsupported.getChatters(process.env.TWITCH_WORKING_CHANNEL);
 };
 
 export const getChatterHelixUsers = async () => {
@@ -37,9 +42,11 @@ export const getChatterHelixUsers = async () => {
 
 let broadcaster: Promise<HelixUser | null>;
 const getBroadcaster = () => {
+  assert.ok(process.env.TWITCH_WORKING_CHANNEL);
+
   if (!broadcaster) {
     broadcaster = twitchAPI.helix.users.getUserByName(
-      process.env.TWITCH_WORKING_CHANNEL || ""
+      process.env.TWITCH_WORKING_CHANNEL
     );
   }
 
