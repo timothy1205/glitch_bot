@@ -2599,66 +2599,66 @@ tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   resolved "https://registry.npmjs.org/tweetnacl/-/tweetnacl-0.14.5.tgz"
   integrity sha1-WuaBd/GS1EViadEIr6k/+HQ/T2Q=
 
-twitch-api-call@^4.6.5:
-  version "4.6.5"
-  resolved "https://registry.npmjs.org/twitch-api-call/-/twitch-api-call-4.6.5.tgz"
-  integrity sha512-a2clXthjFeuIEo+nl1pliTBkms/S+uSTgUB7xyC1FNimJooOq7cAtC6xNWBgtT1JpYdnxZjhCIHCUVtdpagp4g==
+twitch-api-call@^4.6.7:
+  version "4.6.7"
+  resolved "https://registry.yarnpkg.com/twitch-api-call/-/twitch-api-call-4.6.7.tgz#52673672a47f87f5bd050f16dfabc4bf7e612618"
+  integrity sha512-JPiboygoHX3O2jdeWrmwW+VxpJbBYQJRg6+Th9GmqrsHivFFiyjBQproSMVJEgtrViGV1gHw6xlw1wHpoSU4Mw==
   dependencies:
     "@d-fischer/cross-fetch" "^4.0.2"
     "@d-fischer/qs" "^7.0.2"
     "@types/node-fetch" "^2.5.7"
     node-fetch "^2.6.1"
     tslib "^2.0.3"
-    twitch-common "^4.6.5"
+    twitch-common "^4.6.7"
 
-twitch-auth@^4.6.5:
-  version "4.6.5"
-  resolved "https://registry.npmjs.org/twitch-auth/-/twitch-auth-4.6.5.tgz"
-  integrity sha512-BVeW3P2coQn1aNV1sVH/Q0wbgkl1Saf/M76OSanitcA8IgvnEfCGY3iDt2Taec98eBXL+E8SN1iLHLsl3GBHvg==
+twitch-auth@^4.6.7:
+  version "4.6.7"
+  resolved "https://registry.yarnpkg.com/twitch-auth/-/twitch-auth-4.6.7.tgz#a4f0cb82963f1b3083867fa43fca6544cb546a7d"
+  integrity sha512-9AkenhrZfXVdL1P2hJ7rLFKWOOGnkgf5isTJbjGD/GP2NYFYS+Oh8TYp8uyjW3/jQODIFuZeHPIhE6AIK5TVIA==
   dependencies:
     "@d-fischer/deprecate" "^2.0.2"
     "@d-fischer/logger" "^3.1.0"
     "@d-fischer/shared-utils" "^3.0.1"
     tslib "^2.0.3"
-    twitch-api-call "^4.6.5"
-    twitch-common "^4.6.5"
+    twitch-api-call "^4.6.7"
+    twitch-common "^4.6.7"
 
-twitch-common@^4.6.5:
-  version "4.6.5"
-  resolved "https://registry.npmjs.org/twitch-common/-/twitch-common-4.6.5.tgz"
-  integrity sha512-V8rgOIvX6bUMxBQ3BqrmvQOZOfcxsPEZR7lLNXlRsLxHAAbMGze1/SiAzhzQzH/8OV7G3qslWNGEHuQE5iWHbQ==
+twitch-common@^4.6.7:
+  version "4.6.7"
+  resolved "https://registry.yarnpkg.com/twitch-common/-/twitch-common-4.6.7.tgz#ccc7c24a6bbe8f9dd330e6a1802428971d7bef06"
+  integrity sha512-Jwhp8bPnrzGjarPw/sA6jBLjjJnpNGptSJpZcKDzXXShFh2KxxRD7RwKPSLQS8st/SZ5iDwQs+jjSoWugOBJxg==
   dependencies:
     "@d-fischer/logger" "^3.1.0"
     "@d-fischer/shared-utils" "^3.0.1"
     tslib "^2.0.3"
 
-twitch-eventsub-ngrok@^4.6.5:
-  version "4.6.5"
-  resolved "https://registry.npmjs.org/twitch-eventsub-ngrok/-/twitch-eventsub-ngrok-4.6.5.tgz"
-  integrity sha512-72jezGSExsFZj196zW+6bj28S+yIDr0rTsUNW12ivTLD1OWg+8oIUtCI9ysjBStF4A21Bb4kX67Uv9Vvm1ccdA==
+twitch-eventsub-ngrok@^4.6.7:
+  version "4.6.7"
+  resolved "https://registry.yarnpkg.com/twitch-eventsub-ngrok/-/twitch-eventsub-ngrok-4.6.7.tgz#c4e37d623fb2ef5ef31871559b3d8ca1f89c10e3"
+  integrity sha512-2ivowJl04kA21G21NhLCDZtCBWRvxxBwutgIeqWqz/Axmt8vQr35bMz+SY0Jnr6pj8xLSGFBxn/L8KOAeYWLHQ==
   dependencies:
     "@d-fischer/portfinder" "^1.0.28"
     "@d-fischer/shared-utils" "^3.0.1"
     ngrok "^3.4.0"
     tslib "^2.0.3"
 
-twitch-eventsub@^4.6.5:
-  version "4.6.5"
-  resolved "https://registry.npmjs.org/twitch-eventsub/-/twitch-eventsub-4.6.5.tgz"
-  integrity sha512-JQc4SXxLZSvYJr0sYeR9r11VxXedUTW5XhEnm2qswp4g0dAiZxgtXSVi8t2SXugy4P1TKpMK32rkhcdEvuOCWA==
+twitch-eventsub@^4.6.7:
+  version "4.6.7"
+  resolved "https://registry.yarnpkg.com/twitch-eventsub/-/twitch-eventsub-4.6.7.tgz#45c206a0fc4ea875cc4d473c981c5150f738e2b9"
+  integrity sha512-cQdRLm2HJTcbldLRZLvXhhdHcMyFfEDIALVL5ik7vH5bubrHOrZYf6FaiCanjviFPcmNm7Ck2Phaaxe9PhRD4A==
   dependencies:
     "@d-fischer/logger" "^3.1.0"
     "@d-fischer/raw-body" "^2.4.3"
     "@d-fischer/shared-utils" "^3.0.1"
     httpanda "^0.4.4"
     tslib "^2.0.3"
-    twitch-auth "^4.6.5"
-    twitch-common "^4.6.5"
+    twitch-auth "^4.6.7"
+    twitch-common "^4.6.7"
 
-twitch@^4.4.6:
-  version "4.6.5"
-  resolved "https://registry.npmjs.org/twitch/-/twitch-4.6.5.tgz"
-  integrity sha512-vQ9p7s9SHcUgU7Lul7pAf70p8vQXk2o9BCwkGqzZjmMsVMsoikk3MLD7n9Cjle9bIPvWuqW/MyMOw3WdrMe8yg==
+twitch@^4.6.7:
+  version "4.6.7"
+  resolved "https://registry.yarnpkg.com/twitch/-/twitch-4.6.7.tgz#fded8cbd426acdfbfe82453b39cba57d83886703"
+  integrity sha512-inOFFLFhTcls/sskGcQWIfPgvhAF92fDo3uoGHdk0YRzo87NUHprvPE/LJJKh2IsysOPCmA1/mpnjReAgr5opA==
   dependencies:
     "@d-fischer/cache-decorators" "^2.1.1"
     "@d-fischer/deprecate" "^2.0.2"
@@ -2667,9 +2667,9 @@ twitch@^4.4.6:
     "@d-fischer/shared-utils" "^3.0.1"
     top-package "^1.0.0"
     tslib "^2.0.3"
-    twitch-api-call "^4.6.5"
-    twitch-auth "^4.6.5"
-    twitch-common "^4.6.5"
+    twitch-api-call "^4.6.7"
+    twitch-auth "^4.6.7"
+    twitch-common "^4.6.7"
 
 type-fest@^0.8.1:
   version "0.8.1"
