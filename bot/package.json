@@ -23,7 +23,7 @@
     "ext": "ts"
   },
   "dependencies": {
-    "mongoose": "^5.11.11",
+    "mongoose": "^6.0.5",
     "node-schedule": "^1.3.2",
     "tmi.js": "^1.7.1",
     "twitch": "^4.4.6",
