@@ -1,5 +1,5 @@
 import IUser from "./IUser";
-import { ChatUserstate, Badges } from "tmi.js";
+import { ChatUserstate } from "tmi.js";
 import { Permission } from "./commands/CommandHandler";
 
 const calculatePerms = (userstate: ChatUserstate) => {

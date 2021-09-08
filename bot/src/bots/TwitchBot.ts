@@ -35,7 +35,7 @@ class TwitchBot extends IBot {
     twitchCommandHandler.setBot(this);
 
     this.tmiClient = Client(tmiOptions);
-    this.tmiClient.addListener("message", (channel, userstate, msg, self) => {
+    this.tmiClient.addListener("message", (channel, userstate, msg) => {
       const user = new TwitchUser(userstate);
       twitchCommandHandler.handleMessage({
         user,

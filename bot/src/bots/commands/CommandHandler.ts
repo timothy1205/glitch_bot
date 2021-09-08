@@ -57,28 +57,28 @@ export default class CommandHandler {
   private parserMap: Map<CommandArguments, ParserCallback> = new Map();
 
   // Return True to cancel registration abortion
-  protected onFailedRegister(alias: string): boolean | void {}
+  protected onFailedRegister(_alias: string): boolean | void {}
 
   // Return True to halt message interpretation, ran before determining if message is a command
-  protected onMessage(data: MessageData): boolean | void {}
+  protected onMessage(_data: MessageData): boolean | void {}
 
   // Return True to halt message interpretation, ran after determining message is not a command
-  protected onNormalMessage(data: MessageData): boolean | void {}
+  protected onNormalMessage(_data: MessageData): boolean | void {}
 
   // Return True to halt message interpretation, ran after determining message is a command
-  protected onCommand(data: CommandData): boolean | void {}
+  protected onCommand(_data: CommandData): boolean | void {}
 
   protected onBadArguments({
     user,
     channel,
-    alias,
+    alias: _alias,
     command,
   }: CommandData & { command: Command<HardCallback> }): void {
     const usage = this.getUsageMessage(command);
     if (usage && this.bot) this.bot.reply(user, usage, channel);
   }
 
-  protected onInsufficientPermission(data: CommandData): void {}
+  protected onInsufficientPermission(_data: CommandData): void {}
 
   constructor(logger: winston.Logger) {
     this.bot = null;
@@ -333,8 +333,7 @@ export default class CommandHandler {
     }
 
     try {
-      if (this.bot)
-        await command.getCallback()(user, channel, alias, args, this.bot);
+      if (this.bot) command.getCallback()(user, channel, alias, args, this.bot);
     } catch (error) {
       let str = `Caught error while running '${alias}: '`;
       if (error instanceof Error) {
@@ -489,8 +488,6 @@ export default class CommandHandler {
       case CommandArguments.USER:
         return "user";
     }
-
-    return "nil";
   }
 
   public getUsageMessage(aliasOrCommand: string | Command<HardCallback>) {
