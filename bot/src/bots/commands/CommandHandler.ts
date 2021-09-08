@@ -227,7 +227,7 @@ export default class CommandHandler {
     });
   }
 
-  public handleMessage({ user, channel, msg }: MessageData) {
+  public async handleMessage({ user, channel, msg }: MessageData) {
     if (this.onMessage({ user, channel, msg })) {
       this.logger.info(
         `onMessage - Canceling (${channel}, ${user.getUsername()}): ${msg}`
@@ -242,7 +242,7 @@ export default class CommandHandler {
     if (this.hasPrefix(msg)) {
       if ((hardCommand = this.hardCommands[alias])) {
         if (hardCommand instanceof Command) {
-          this.handleCommand({
+          await this.handleCommand({
             user,
             channel,
             msg,
@@ -335,6 +335,8 @@ export default class CommandHandler {
     try {
       if (this.bot) command.getCallback()(user, channel, alias, args, this.bot);
     } catch (error) {
+      if (process.env.NODE_ENV === "test") throw error;
+
       let str = `Caught error while running '${alias}: '`;
       if (error instanceof Error) {
         error.message = str + error.message;
