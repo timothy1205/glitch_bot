@@ -15,13 +15,11 @@ twitchBot.getCommandHandler()?.registerCommand(
       let helixUser;
       const [id, type] = data as [string, string | undefined];
 
-      try {
-        if (!type || type === "id") {
-          helixUser = await twitchAPI.users.getUserById(id);
-        } else if (type === "name") {
-          helixUser = await twitchAPI.users.getUserByName(id);
-        }
-      } catch (error) {}
+      if (!type || type === "id") {
+        helixUser = await twitchAPI.users.getUserById(id);
+      } else if (type === "name") {
+        helixUser = await twitchAPI.users.getUserByName(id);
+      }
 
       if (!helixUser) {
         twitchBot.reply(caller, "no user found!");
