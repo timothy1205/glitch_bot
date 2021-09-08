@@ -17,9 +17,9 @@ twitchBot.getCommandHandler()?.registerCommand(
 
       try {
         if (!type || type === "id") {
-          helixUser = await twitchAPI.helix.users.getUserById(id);
+          helixUser = await twitchAPI.users.getUserById(id);
         } else if (type === "name") {
-          helixUser = await twitchAPI.helix.users.getUserByName(id);
+          helixUser = await twitchAPI.users.getUserByName(id);
         }
       } catch (error) {}
 

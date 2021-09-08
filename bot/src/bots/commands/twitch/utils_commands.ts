@@ -58,7 +58,7 @@ twitchBot.getCommandHandler()?.registerCommand(
     callback: async (caller, _channel, _alias, _data, _bot) => {
       assert.ok(process.env.TWITCH_WORKING_CHANNEL);
 
-      const helixStream = await twitchAPI.helix.streams.getStreamByUserName(
+      const helixStream = await twitchAPI.streams.getStreamByUserName(
         process.env.TWITCH_WORKING_CHANNEL
       );
       if (helixStream) {
@@ -84,7 +84,7 @@ twitchBot.getCommandHandler()?.registerCommand(
       let mongoUser;
 
       if (user) {
-        const helixUser = await twitchAPI.helix.users.getUserByName(user);
+        const helixUser = await twitchAPI.users.getUserByName(user);
         if (helixUser) mongoUser = await getUser({ twitchId: helixUser.id });
       } else {
         const id = caller.getID();
@@ -115,7 +115,7 @@ twitchBot.getCommandHandler()?.registerCommand(
         callback: async (caller, _channel, _alias, data, _bot) => {
           const [user] = data as [string];
 
-          const helixUser = await twitchAPI.helix.users.getUserByName(user);
+          const helixUser = await twitchAPI.users.getUserByName(user);
           if (helixUser) {
             setStatBanned(helixUser.id, true);
             twitchBot.reply(
@@ -134,7 +134,7 @@ twitchBot.getCommandHandler()?.registerCommand(
         callback: async (caller, _channel, _alias, data, _bot) => {
           const [user] = data as [string];
 
-          const helixUser = await twitchAPI.helix.users.getUserByName(user);
+          const helixUser = await twitchAPI.users.getUserByName(user);
           if (helixUser) {
             setStatBanned(helixUser.id, false);
             twitchBot.reply(
@@ -153,7 +153,7 @@ twitchBot.getCommandHandler()?.registerCommand(
         callback: async (caller, _channel, _alias, data, _bot) => {
           const [user] = data as [string];
 
-          const helixUser = await twitchAPI.helix.users.getUserByName(user);
+          const helixUser = await twitchAPI.users.getUserByName(user);
           const banned =
             helixUser && (await getStatBanned({ twitchId: helixUser.id }));
           twitchBot.reply(

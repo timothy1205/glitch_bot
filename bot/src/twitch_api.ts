@@ -1,8 +1,8 @@
 import assert from "assert";
-import { ApiClient, HelixUser } from "twitch";
-import { ClientCredentialsAuthProvider } from "twitch-auth";
-import { EventSubListener, ReverseProxyAdapter } from "twitch-eventsub";
-import { NgrokAdapter } from "twitch-eventsub-ngrok";
+import { ApiClient, HelixUser } from "@twurple/api";
+import { ClientCredentialsAuthProvider } from "@twurple/auth";
+import { EventSubListener, ReverseProxyAdapter } from "@twurple/eventsub";
+import { NgrokAdapter } from "@twurple/eventsub-ngrok";
 import twitchBot from "./bots/TwitchBot";
 import { twitchBotLogger } from "./logging";
 import { getOrCreateUser, setFollowed } from "./mongo/models/UserModel";
@@ -21,7 +21,7 @@ export const isBroadcasterLive = async () => {
   assert.ok(process.env.TWITCH_WORKING_CHANNEL);
 
   return (
-    (await twitchAPI.helix.streams.getStreamByUserName(
+    (await twitchAPI.streams.getStreamByUserName(
       process.env.TWITCH_WORKING_CHANNEL
     )) != null
   );
@@ -37,7 +37,7 @@ export const getChatterHelixUsers = async () => {
   const names = (await getChannelChatters()).allChatters;
   if (names.length < 0) return;
 
-  return twitchAPI.helix.users.getUsersByNames(names);
+  return twitchAPI.users.getUsersByNames(names);
 };
 
 let broadcaster: Promise<HelixUser | null>;
@@ -45,7 +45,7 @@ const getBroadcaster = () => {
   assert.ok(process.env.TWITCH_WORKING_CHANNEL);
 
   if (!broadcaster) {
-    broadcaster = twitchAPI.helix.users.getUserByName(
+    broadcaster = twitchAPI.users.getUserByName(
       process.env.TWITCH_WORKING_CHANNEL
     );
   }
@@ -54,7 +54,7 @@ const getBroadcaster = () => {
 };
 
 export const getFollowsByName = async (name: string) => {
-  const userPromise = twitchAPI.helix.users.getUserByName(name);
+  const userPromise = twitchAPI.users.getUserByName(name);
   const broadcasterPromise = getBroadcaster();
 
   const [helixUser, broadcasterHelixUser] = await Promise.all([
@@ -63,7 +63,7 @@ export const getFollowsByName = async (name: string) => {
   ]);
 
   if (helixUser && broadcasterHelixUser) {
-    const paginatedFollowUser = await twitchAPI.helix.users.getFollows({
+    const paginatedFollowUser = await twitchAPI.users.getFollows({
       user: helixUser,
       followedUser: broadcasterHelixUser,
     });
@@ -77,7 +77,7 @@ export const getFollowsByName = async (name: string) => {
 export const getFollowsByID = async (twitchId: string) => {
   const broadcasterHelixUser = await getBroadcaster();
   if (broadcasterHelixUser) {
-    const paginatedFollowUser = await twitchAPI.helix.users.getFollows({
+    const paginatedFollowUser = await twitchAPI.users.getFollows({
       user: twitchId,
       followedUser: broadcasterHelixUser,
     });
@@ -131,11 +131,11 @@ const setupHooks = async () => {
 
   if (process.env.NODE_ENV === "development") {
     twitchBotLogger.info("Starting Ngrok listener!");
-    listener = new EventSubListener(
-      twitchAPI,
-      new NgrokAdapter(),
-      process.env.TWITCH_EVENTSUB_SECRET
-    );
+    listener = new EventSubListener({
+      apiClient: twitchAPI,
+      adapter: new NgrokAdapter(),
+      secret: process.env.TWITCH_EVENTSUB_SECRET,
+    });
   } else {
     assert.ok(process.env.LISTENER_HOST);
     assert.ok(process.env.LISTENER_PORT);
@@ -143,19 +143,19 @@ const setupHooks = async () => {
     twitchBotLogger.info(
       `Starting EventSubListener on ${process.env.LISTENER_HOST}:${process.env.LISTENER_PORT}`
     );
-    listener = new EventSubListener(
-      twitchAPI,
-      new ReverseProxyAdapter({
+    listener = new EventSubListener({
+      apiClient: twitchAPI,
+      adapter: new ReverseProxyAdapter({
         hostName: process.env.LISTENER_HOST,
         port: parseInt(process.env.LISTENER_PORT),
       }),
-      process.env.TWITCH_EVENTSUB_SECRET
-    );
+      secret: process.env.TWITCH_EVENTSUB_SECRET,
+    });
   }
 
   if (listener) {
     // Clear subscriptions and start fresh...
-    await twitchAPI.helix.eventSub.deleteAllSubscriptions();
+    await twitchAPI.eventSub.deleteAllSubscriptions();
     await listener.listen();
     await registerPermanentSubs();
   }
