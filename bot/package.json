@@ -23,9 +23,9 @@
     "ext": "ts"
   },
   "dependencies": {
-    "@twurple/api": "^5.0.0",
-    "@twurple/eventsub": "^5.0.0",
-    "@twurple/eventsub-ngrok": "^5.0.0",
+    "@twurple/api": "^5.0.1",
+    "@twurple/eventsub": "^5.0.1",
+    "@twurple/eventsub-ngrok": "^5.0.1",
     "mongoose": "^6.0.5",
     "tmi.js": "^1.7.1",
     "ts-node": "^10.2.1",
