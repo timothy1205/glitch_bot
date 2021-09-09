@@ -1,4 +1,4 @@
-import CommandHandler from "./CommandHandler";
+import CommandHandler, { CommandData } from "./CommandHandler";
 import { twitchBotLogger } from "../../logging";
 import { CommandArguments } from "./Command";
 
@@ -18,5 +18,11 @@ export default class TwitchCommandHandler extends CommandHandler {
     if (arg == CommandArguments.USER) return "@user";
 
     return super.getArgTypeAsString(arg);
+  }
+
+  protected onCommand(data: CommandData) {
+    twitchBotLogger.info(
+      `[${data.channel}] <${data.user.getUsername()}>: ${data.msg}`
+    );
   }
 }

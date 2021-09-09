@@ -20,6 +20,7 @@ const tmiOptions: Options = {
   },
   options: {
     debug: process.env.NODE_ENV !== "production",
+    messagesLogLevel: "verbose",
   },
   logger: twitchBotLogger,
 };

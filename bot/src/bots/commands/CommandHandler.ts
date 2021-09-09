@@ -33,7 +33,7 @@ interface MessageData {
   msg: string;
 }
 
-type CommandData = MessageData & { alias: string };
+export type CommandData = MessageData & { alias: string };
 
 export class RegisterError extends Error {}
 
