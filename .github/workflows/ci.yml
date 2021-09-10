@@ -9,23 +9,26 @@ on:
 jobs:
   run-tests:
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[NO TESTS]') }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Install packages
-        uses: borales/actions-yarn@v2.3.0
+      - name: Setup node environment
+        uses: actions/setup-node@v2
         with:
-          cmd: --cwd ./bot install
+          node-version: '16'
+          cache: 'yarn'
+
+      - name: Install packages
+        run: yarn --cwd ./bot install
 
       - name: Run mocha tests
-        uses: borales/actions-yarn@v2.3.0
-        with:
-          cmd: --cwd ./bot test
+        run: yarn --cwd ./bot test
   deploy: 
     runs-on: ubuntu-latest
     needs: run-tests 
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' && !contains(github.event.head_commit.message, '[NO DEPLOY]') }}
     steps:
       - name: Deploy to docker-compose
         uses: appleboy/ssh-action@master
