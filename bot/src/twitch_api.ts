@@ -124,8 +124,6 @@ const registerPermanentSubs = async () => {
 };
 
 let listener: EventSubListener;
-// TODO: Setup EventSubLister which needs an SSL Cert
-// https://d-fischer.github.io/twitch-eventsub/docs/basic-usage/listening-to-events.html
 const setupHooks = async () => {
   assert.ok(process.env.TWITCH_EVENTSUB_SECRET);
 
