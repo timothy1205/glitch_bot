@@ -1,5 +1,5 @@
-import CommandHandler from "../CommandHandler";
-import Command from "../Command";
+import { CommandHandler } from "../CommandHandler";
+import { Command } from "../Command";
 import { Permission } from "../CommandHandler";
 import { CommandArguments } from "../Command";
 

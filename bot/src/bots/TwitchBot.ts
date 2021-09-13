@@ -2,10 +2,10 @@ import assert from "assert";
 import { Client, Options } from "tmi.js";
 import { twitchBotLogger } from "../logging";
 import { aknowledgeMessage } from "./../auto_messages";
-import TwitchCommandHandler from "./commands/TwitchCommandHandler";
-import IBot from "./IBot";
-import IUser from "./IUser";
-import TwitchUser from "./TwitchUser";
+import { TwitchCommandHandler } from "./commands/TwitchCommandHandler";
+import { IBot } from "./IBot";
+import { IUser } from "./IUser";
+import { TwitchUser } from "./TwitchUser";
 
 assert.ok(process.env.TWITCH_WORKING_CHANNEL);
 
@@ -74,4 +74,4 @@ class TwitchBot extends IBot {
 }
 
 const twitchBot = new TwitchBot(new TwitchCommandHandler());
-export default twitchBot;
+export { twitchBot };

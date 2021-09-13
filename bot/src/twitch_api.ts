@@ -3,7 +3,7 @@ import { ApiClient, HelixUser } from "@twurple/api";
 import { ClientCredentialsAuthProvider } from "@twurple/auth";
 import { EventSubListener, ReverseProxyAdapter } from "@twurple/eventsub";
 import { NgrokAdapter } from "@twurple/eventsub-ngrok";
-import twitchBot from "./bots/TwitchBot";
+import { twitchBot } from "./bots/TwitchBot";
 import { twitchBotLogger } from "./logging";
 import { getOrCreateUser, setFollowed } from "./mongo/models/UserModel";
 

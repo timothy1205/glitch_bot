@@ -1,6 +1,6 @@
-import twitchBot from "../../TwitchBot";
+import { twitchBot } from "../../TwitchBot";
 import { twitchAPI } from "../../../twitch_api";
-import Command, { CommandArguments } from "../Command";
+import { Command, CommandArguments } from "../Command";
 import { Permission } from "../CommandHandler";
 
 twitchBot.getCommandHandler()?.registerCommand(

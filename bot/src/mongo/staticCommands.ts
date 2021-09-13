@@ -1,5 +1,5 @@
 import { removeAutoMessage } from "./../auto_messages";
-import StaticCommandModel from "./models/StaticCommandModel";
+import { StaticCommandModel } from "./models/StaticCommandModel";
 
 export const getMongoStaticCommands = () => {
   return StaticCommandModel.find({});

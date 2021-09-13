@@ -12,8 +12,7 @@ const staticCommandSchema = new Schema<StaticCommand>({
   auto: { type: Boolean, default: false },
 });
 
-const StaticCommandModel = model<StaticCommand>(
+export const StaticCommandModel = model<StaticCommand>(
   "static_command",
   staticCommandSchema
 );
-export default StaticCommandModel;

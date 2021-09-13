@@ -1,6 +1,6 @@
 import { Permission } from "./commands/CommandHandler";
 
-export default abstract class IUser {
+export abstract class IUser {
   private permission: Permission = Permission.USER;
   private username: string = "";
 

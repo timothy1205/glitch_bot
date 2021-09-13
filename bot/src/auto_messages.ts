@@ -1,6 +1,6 @@
 import { twitchBotLogger } from "./logging";
-import Queue, { QueueNode } from "./Queue";
-import twitchBot from "./bots/TwitchBot";
+import { Queue, QueueNode } from "./Queue";
+import { twitchBot } from "./bots/TwitchBot";
 import { isBroadcasterLive } from "./twitch_api";
 
 const timerInterval = 20;

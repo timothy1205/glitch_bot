@@ -1,6 +1,6 @@
 import { Permission } from "./CommandHandler";
-import IUser from "../IUser";
-import IBot from "../IBot";
+import { IUser } from "../IUser";
+import { IBot } from "../IBot";
 
 export enum CommandArguments {
   STRING,
@@ -22,7 +22,7 @@ export interface StaticCallback {
   (bot: IBot, channel: string): void;
 }
 
-export default class Command<T> {
+export class Command<T> {
   private permission: Permission;
   private aliases: string[];
   private args?: CommandArgumentWrapper[];

@@ -1,7 +1,7 @@
-import IUser from "../IUser";
-import winston from "winston";
-import IBot from "../IBot";
-import Command from "./Command";
+import { Logger } from "winston";
+import { IUser } from "../IUser";
+import { IBot } from "../IBot";
+import { Command } from "./Command";
 import {
   HardCallback,
   StaticCallback,
@@ -37,7 +37,7 @@ export type CommandData = MessageData & { alias: string };
 
 export class RegisterError extends Error {}
 
-export default class CommandHandler {
+export class CommandHandler {
   // Aliases already registered as a command, statically or otherwise.
   private static reservedAliases: Set<string> = new Set();
   private static staticCommands: {
@@ -53,7 +53,7 @@ export default class CommandHandler {
     [alias: string]: SubCommandContainer | Command<HardCallback>;
   } = {};
   private bot: IBot | null;
-  private logger: winston.Logger;
+  private logger: Logger;
   private parserMap: Map<CommandArguments, ParserCallback> = new Map();
 
   // Return True to cancel registration abortion
@@ -80,7 +80,7 @@ export default class CommandHandler {
 
   protected onInsufficientPermission(_data: CommandData): void {}
 
-  constructor(logger: winston.Logger) {
+  constructor(logger: Logger) {
     this.bot = null;
     this.logger = logger;
 

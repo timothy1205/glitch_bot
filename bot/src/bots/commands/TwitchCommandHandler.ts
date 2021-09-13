@@ -1,8 +1,8 @@
-import CommandHandler, { CommandData } from "./CommandHandler";
+import { CommandHandler, CommandData } from "./CommandHandler";
 import { twitchBotLogger } from "../../logging";
 import { CommandArguments } from "./Command";
 
-export default class TwitchCommandHandler extends CommandHandler {
+export class TwitchCommandHandler extends CommandHandler {
   constructor() {
     super(twitchBotLogger);
 

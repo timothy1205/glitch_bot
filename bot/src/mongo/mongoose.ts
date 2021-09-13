@@ -1,6 +1,6 @@
 import assert from "assert";
 import mongoose from "mongoose";
-import CommandHandler from "../bots/commands/CommandHandler";
+import { CommandHandler } from "../bots/commands/CommandHandler";
 import { mongooseLogger } from "../logging";
 import { addAutoMessage } from "./../auto_messages";
 import { RegisterError } from "./../bots/commands/CommandHandler";

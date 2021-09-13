@@ -1,4 +1,4 @@
-export default class Queue {
+export class Queue {
   private head: QueueNode<any> | null;
   private tail: QueueNode<any> | null;
 

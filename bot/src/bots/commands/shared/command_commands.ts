@@ -1,8 +1,8 @@
 import { addAutoMessage, removeAutoMessage } from "./../../../auto_messages";
 import { getMongoStaticCommand } from "./../../../mongo/staticCommands";
 import { SubCommandContainer, CommandArguments } from "../Command";
-import Command from "../Command";
-import CommandHandler, { Permission } from "../CommandHandler";
+import { Command } from "../Command";
+import { CommandHandler, Permission } from "../CommandHandler";
 import { RegisterError } from "../CommandHandler";
 import {
   setMongoStaticCommand,

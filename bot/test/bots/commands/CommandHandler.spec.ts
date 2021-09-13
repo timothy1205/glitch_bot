@@ -1,11 +1,12 @@
 import assert from "assert";
 import winston from "winston";
-import Command, { CommandArguments } from "../../../src/bots/commands/Command";
-import CommandHandler, {
+import { Command, CommandArguments } from "../../../src/bots/commands/Command";
+import {
+  CommandHandler,
   Permission,
 } from "../../../src/bots/commands/CommandHandler";
-import IBot from "../../../src/bots/IBot";
-import IUser from "../../../src/bots/IUser";
+import { IBot } from "../../../src/bots/IBot";
+import { IUser } from "../../../src/bots/IUser";
 
 class TestCommandHandler extends CommandHandler {
   constructor() {

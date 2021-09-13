@@ -20,7 +20,7 @@ const userSchema = new Schema<User>({
 });
 
 const UserModel = model<User>("user", userSchema);
-export default UserModel;
+export { UserModel };
 
 type UserType = ReturnType<typeof createUser>;
 type IDTwitchOrDiscord = { twitchId: string } | { discordId: string };

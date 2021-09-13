@@ -1,7 +1,7 @@
-import CommandHandler from "./commands/CommandHandler";
-import IUser from "./IUser";
+import { CommandHandler } from "./commands/CommandHandler";
+import { IUser } from "./IUser";
 
-export default abstract class IBot {
+export abstract class IBot {
   private commandHandler: CommandHandler | null = null;
 
   public abstract sendChannelMessage(

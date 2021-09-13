@@ -6,8 +6,8 @@ import {
 } from "../../../mongo/models/UserModel";
 import { getFollowsByName, twitchAPI } from "../../../twitch_api";
 import { formatWatchTime, millisecondsToMinutes } from "../../../utils";
-import twitchBot from "../../TwitchBot";
-import Command, { CommandArguments, SubCommandContainer } from "../Command";
+import { twitchBot } from "../../TwitchBot";
+import { Command, CommandArguments, SubCommandContainer } from "../Command";
 import { Permission } from "../CommandHandler";
 
 twitchBot.getCommandHandler()?.registerCommand(
