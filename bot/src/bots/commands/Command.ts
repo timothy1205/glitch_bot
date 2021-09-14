@@ -8,6 +8,14 @@ export enum CommandArguments {
   USER,
 }
 
+export enum CommandCategories {
+  STATIC,
+  SHARED_ADMIN,
+  SHARED_CMD,
+  TWITCH_ADMIN,
+  TWITCH_UTILS,
+}
+
 export interface CommandArgumentWrapper {
   arg: CommandArguments;
   name: string;
@@ -26,17 +34,20 @@ export class Command<T> {
   private permission: Permission;
   private aliases: string[];
   private args?: CommandArgumentWrapper[];
+  private category?: CommandCategories;
   private callback: T;
 
   constructor(data: {
     permission: Permission;
     aliases: string[];
     args?: CommandArgumentWrapper[];
+    category?: CommandCategories;
     callback: T;
   }) {
     this.permission = data.permission;
     this.aliases = data.aliases;
     this.args = data.args;
+    this.category = data.category;
     this.callback = data.callback;
   }
 
@@ -50,6 +61,10 @@ export class Command<T> {
 
   public getArgs() {
     return this.args;
+  }
+
+  public getCategory() {
+    return this.category;
   }
 
   public getCallback() {

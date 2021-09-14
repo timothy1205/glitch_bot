@@ -1,6 +1,10 @@
 import { addAutoMessage, removeAutoMessage } from "./../../../auto_messages";
 import { getMongoStaticCommand } from "./../../../mongo/staticCommands";
-import { SubCommandContainer, CommandArguments } from "../Command";
+import {
+  SubCommandContainer,
+  CommandArguments,
+  CommandCategories,
+} from "../Command";
 import { Command } from "../Command";
 import { CommandHandler, Permission } from "../CommandHandler";
 import { RegisterError } from "../CommandHandler";
@@ -8,6 +12,8 @@ import {
   setMongoStaticCommand,
   deleteMongoStaticCommand,
 } from "../../../mongo/staticCommands";
+
+const FILE_CATEGORY = CommandCategories.SHARED_CMD;
 
 CommandHandler.queueDefaultCommand(
   new SubCommandContainer(["command", "cmd"])
@@ -19,6 +25,7 @@ CommandHandler.queueDefaultCommand(
           { arg: CommandArguments.STRING, name: "alias(es)" },
           { arg: CommandArguments.STRING, name: "msg" },
         ],
+        category: FILE_CATEGORY,
         callback: async (caller, channel, _alias, data, bot) => {
           const [aliases, message] = data as [string, string];
 
@@ -44,6 +51,7 @@ CommandHandler.queueDefaultCommand(
         permission: Permission.MOD,
         aliases: ["remove", "rm"],
         args: [{ arg: CommandArguments.STRING, name: "alias" }],
+        category: FILE_CATEGORY,
         callback: async (caller, channel, _alias, data, bot) => {
           const [alias] = data as [string];
 
@@ -77,6 +85,7 @@ CommandHandler.queueDefaultCommand(
             optional: true,
           },
         ],
+        category: FILE_CATEGORY,
         callback: async (caller, _channel, _alias, data, bot) => {
           const [alias, inputState] = data as [string, string | undefined];
 
@@ -116,6 +125,7 @@ CommandHandler.queueDefaultCommand(
         permission: Permission.MOD,
         aliases: ["check"],
         args: [{ arg: CommandArguments.STRING, name: "alias" }],
+        category: FILE_CATEGORY,
         callback: async (caller, _channel, _alias, data, bot) => {
           const [alias] = data as [string];
 

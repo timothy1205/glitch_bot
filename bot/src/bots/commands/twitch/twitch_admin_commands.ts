@@ -1,7 +1,9 @@
 import { twitchBot } from "../../TwitchBot";
 import { twitchAPI } from "../../../twitch_api";
-import { Command, CommandArguments } from "../Command";
+import { Command, CommandArguments, CommandCategories } from "../Command";
 import { Permission } from "../CommandHandler";
+
+const FILE_CATEGORY = CommandCategories.TWITCH_ADMIN;
 
 twitchBot.getCommandHandler()?.registerCommand(
   new Command({
@@ -11,6 +13,7 @@ twitchBot.getCommandHandler()?.registerCommand(
       { arg: CommandArguments.STRING, name: "id" },
       { arg: CommandArguments.STRING, name: "type", optional: true },
     ],
+    category: FILE_CATEGORY,
     callback: async (caller, _channel, _alias, data, _bot) => {
       let helixUser;
       const [id, type] = data as [string, string | undefined];

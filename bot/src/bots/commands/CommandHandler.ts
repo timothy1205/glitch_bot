@@ -1,7 +1,7 @@
 import { Logger } from "winston";
 import { IUser } from "../IUser";
 import { IBot } from "../IBot";
-import { Command } from "./Command";
+import { Command, CommandCategories } from "./Command";
 import {
   HardCallback,
   StaticCallback,
@@ -123,6 +123,7 @@ export class CommandHandler {
     const command = new Command<StaticCallback>({
       permission: Permission.USER,
       aliases: aliases,
+      category: CommandCategories.STATIC,
       callback: (bot: IBot, channel: string) => {
         bot.sendChannelMessage(message, channel);
       },
