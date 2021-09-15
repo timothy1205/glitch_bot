@@ -8,12 +8,14 @@ import { getFollowsByName, twitchAPI } from "../../../twitch_api";
 import { formatWatchTime, millisecondsToMinutes } from "../../../utils";
 import { twitchBot } from "../../TwitchBot";
 import {
+  CommandCategories,
   CommandHCGeneric,
   CommandArguments,
   SubCommandContainer,
 } from "../Command";
 import { Permission } from "../CommandHandler";
 
+const FILE_CATEGORY = CommandCategories.TWITCH_UTILS;
 const DAY_MILLISECONDS = 86400000;
 
 twitchBot.getCommandHandler()?.registerCommand(
@@ -21,6 +23,7 @@ twitchBot.getCommandHandler()?.registerCommand(
     permission: Permission.USER,
     aliases: ["followage", "fa"],
     args: [{ arg: CommandArguments.USER, name: "user", optional: true }],
+    category: FILE_CATEGORY,
     callback: async (caller, _channel, _alias, data, _bot) => {
       const [user] = data;
 
@@ -59,6 +62,7 @@ twitchBot.getCommandHandler()?.registerCommand(
   new CommandHCGeneric<[]>({
     permission: Permission.USER,
     aliases: ["uptime", "up"],
+    category: FILE_CATEGORY,
     callback: async (caller, _channel, _alias, _data, _bot) => {
       assert.ok(process.env.TWITCH_WORKING_CHANNEL);
 
@@ -82,6 +86,7 @@ twitchBot.getCommandHandler()?.registerCommand(
   new CommandHCGeneric<[string | undefined]>({
     permission: Permission.USER,
     aliases: ["watchtime", "wt"],
+    category: FILE_CATEGORY,
     args: [{ arg: CommandArguments.USER, name: "user", optional: true }],
     callback: async (caller, _channel, _alias, data, _bot) => {
       const [user] = data;
@@ -116,6 +121,7 @@ twitchBot.getCommandHandler()?.registerCommand(
         permission: Permission.BROADCASTER,
         aliases: ["ban"],
         args: [{ arg: CommandArguments.USER, name: "user" }],
+        category: FILE_CATEGORY,
         callback: async (caller, _channel, _alias, data, _bot) => {
           const [user] = data;
 
@@ -135,6 +141,7 @@ twitchBot.getCommandHandler()?.registerCommand(
         permission: Permission.BROADCASTER,
         aliases: ["unban"],
         args: [{ arg: CommandArguments.USER, name: "user" }],
+        category: FILE_CATEGORY,
         callback: async (caller, _channel, _alias, data, _bot) => {
           const [user] = data;
 
@@ -154,6 +161,7 @@ twitchBot.getCommandHandler()?.registerCommand(
         permission: Permission.MOD,
         aliases: ["check"],
         args: [{ arg: CommandArguments.USER, name: "user" }],
+        category: FILE_CATEGORY,
         callback: async (caller, _channel, _alias, data, _bot) => {
           const [user] = data;
 
@@ -176,6 +184,7 @@ twitchBot.getCommandHandler()?.registerCommand(
     permission: Permission.MOD,
     aliases: ["shoutout", "so"],
     args: [{ arg: CommandArguments.STRING, name: "user" }],
+    category: FILE_CATEGORY,
     callback: async (_caller, _channel, _alias, data, _bot) => {
       const [user] = data;
 
@@ -191,6 +200,7 @@ twitchBot.getCommandHandler()?.registerCommand(
     permission: Permission.MOD,
     aliases: ["follows"],
     args: [{ arg: CommandArguments.STRING, name: "status" }],
+    category: FILE_CATEGORY,
     callback: async (caller, _channel, _alias, data, bot) => {
       const [status] = data;
 
