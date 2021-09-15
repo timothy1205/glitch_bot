@@ -7,16 +7,20 @@ import {
 import { getFollowsByName, twitchAPI } from "../../../twitch_api";
 import { formatWatchTime, millisecondsToMinutes } from "../../../utils";
 import { twitchBot } from "../../TwitchBot";
-import { Command, CommandArguments, SubCommandContainer } from "../Command";
+import {
+  CommandHCGeneric,
+  CommandArguments,
+  SubCommandContainer,
+} from "../Command";
 import { Permission } from "../CommandHandler";
 
 twitchBot.getCommandHandler()?.registerCommand(
-  new Command({
+  new CommandHCGeneric<[string | undefined]>({
     permission: Permission.USER,
     aliases: ["followage", "fa"],
     args: [{ arg: CommandArguments.USER, name: "user", optional: true }],
     callback: async (caller, _channel, _alias, data, _bot) => {
-      const [user] = data as [string | undefined];
+      const [user] = data;
 
       const followUser = user
         ? await getFollowsByName(user)
@@ -52,7 +56,7 @@ twitchBot.getCommandHandler()?.registerCommand(
 );
 
 twitchBot.getCommandHandler()?.registerCommand(
-  new Command({
+  new CommandHCGeneric<[]>({
     permission: Permission.USER,
     aliases: ["uptime", "up"],
     callback: async (caller, _channel, _alias, _data, _bot) => {
@@ -75,12 +79,12 @@ twitchBot.getCommandHandler()?.registerCommand(
   })
 );
 twitchBot.getCommandHandler()?.registerCommand(
-  new Command({
+  new CommandHCGeneric<[string | undefined]>({
     permission: Permission.USER,
     aliases: ["watchtime", "wt"],
     args: [{ arg: CommandArguments.USER, name: "user", optional: true }],
     callback: async (caller, _channel, _alias, data, _bot) => {
-      const [user] = data as [string | undefined];
+      const [user] = data;
       let mongoUser;
 
       if (user) {
@@ -108,12 +112,12 @@ twitchBot.getCommandHandler()?.registerCommand(
 twitchBot.getCommandHandler()?.registerCommand(
   new SubCommandContainer(["stat", "statistic"])
     .addCommand(
-      new Command({
+      new CommandHCGeneric<[string]>({
         permission: Permission.BROADCASTER,
         aliases: ["ban"],
         args: [{ arg: CommandArguments.USER, name: "user" }],
         callback: async (caller, _channel, _alias, data, _bot) => {
-          const [user] = data as [string];
+          const [user] = data;
 
           const helixUser = await twitchAPI.users.getUserByName(user);
           if (helixUser) {
@@ -127,12 +131,12 @@ twitchBot.getCommandHandler()?.registerCommand(
       })
     )
     .addCommand(
-      new Command({
+      new CommandHCGeneric<[string]>({
         permission: Permission.BROADCASTER,
         aliases: ["unban"],
         args: [{ arg: CommandArguments.USER, name: "user" }],
         callback: async (caller, _channel, _alias, data, _bot) => {
-          const [user] = data as [string];
+          const [user] = data;
 
           const helixUser = await twitchAPI.users.getUserByName(user);
           if (helixUser) {
@@ -146,12 +150,12 @@ twitchBot.getCommandHandler()?.registerCommand(
       })
     )
     .addCommand(
-      new Command({
+      new CommandHCGeneric<[string]>({
         permission: Permission.MOD,
         aliases: ["check"],
         args: [{ arg: CommandArguments.USER, name: "user" }],
         callback: async (caller, _channel, _alias, data, _bot) => {
-          const [user] = data as [string];
+          const [user] = data;
 
           const helixUser = await twitchAPI.users.getUserByName(user);
           const banned =
@@ -168,12 +172,12 @@ twitchBot.getCommandHandler()?.registerCommand(
 );
 
 twitchBot.getCommandHandler()?.registerCommand(
-  new Command({
+  new CommandHCGeneric<[string]>({
     permission: Permission.MOD,
     aliases: ["shoutout", "so"],
     args: [{ arg: CommandArguments.STRING, name: "user" }],
     callback: async (_caller, _channel, _alias, data, _bot) => {
-      const [user] = data as [string];
+      const [user] = data;
 
       twitchBot.sendChannelMessage(
         `Go checkout ${user}'s channel at https://twitch.tv/${user}`
@@ -183,12 +187,12 @@ twitchBot.getCommandHandler()?.registerCommand(
 );
 
 twitchBot.getCommandHandler()?.registerCommand(
-  new Command({
+  new CommandHCGeneric<[string]>({
     permission: Permission.MOD,
     aliases: ["follows"],
     args: [{ arg: CommandArguments.STRING, name: "status" }],
     callback: async (caller, _channel, _alias, data, bot) => {
-      const [status] = data as [string];
+      const [status] = data;
 
       switch (status) {
         case "on":

@@ -1,9 +1,8 @@
 import { Logger } from "winston";
 import { IUser } from "../IUser";
 import { IBot } from "../IBot";
-import { Command } from "./Command";
+import { Command, CommandHC } from "./Command";
 import {
-  HardCallback,
   StaticCallback,
   CommandArguments,
   CommandArgumentWrapper,
@@ -43,14 +42,13 @@ export class CommandHandler {
   private static staticCommands: {
     [alias: string]: Command<StaticCallback>;
   } = {};
-  private static defaultCommandQueue: Set<
-    SubCommandContainer | Command<HardCallback>
-  > = new Set();
+  private static defaultCommandQueue: Set<SubCommandContainer | CommandHC> =
+    new Set();
   private static commandHandlers: Set<CommandHandler> = new Set();
 
   private commandPrefix: string = "!";
   private hardCommands: {
-    [alias: string]: SubCommandContainer | Command<HardCallback>;
+    [alias: string]: SubCommandContainer | CommandHC;
   } = {};
   private bot: IBot | null;
   private logger: Logger;
@@ -73,7 +71,7 @@ export class CommandHandler {
     channel,
     alias: _alias,
     command,
-  }: CommandData & { command: Command<HardCallback> }): void {
+  }: CommandData & { command: CommandHC }): void {
     const usage = this.getUsageMessage(command);
     if (usage && this.bot) this.bot.reply(user, usage, channel);
   }
@@ -160,9 +158,7 @@ export class CommandHandler {
     return CommandHandler.staticCommands[alias];
   }
 
-  public static queueDefaultCommand(
-    command: SubCommandContainer | Command<HardCallback>
-  ) {
+  public static queueDefaultCommand(command: SubCommandContainer | CommandHC) {
     CommandHandler.defaultCommandQueue.add(command);
   }
 
@@ -178,7 +174,7 @@ export class CommandHandler {
     this.bot = bot;
   }
 
-  public registerCommand(command: SubCommandContainer | Command<HardCallback>) {
+  public registerCommand(command: SubCommandContainer | CommandHC) {
     const aliases = command.getAliases();
     aliases.forEach((alias) => {
       if (this.hardCommands[alias]) {
@@ -235,7 +231,7 @@ export class CommandHandler {
       return;
     }
 
-    let hardCommand: SubCommandContainer | Command<HardCallback> | undefined;
+    let hardCommand: SubCommandContainer | CommandHC | undefined;
     let staticCommand: Command<StaticCallback> | undefined;
     let [alias, args] = this.parseMessage(msg);
 
@@ -291,7 +287,7 @@ export class CommandHandler {
     command,
     args,
   }: CommandData & {
-    command: Command<HardCallback>;
+    command: CommandHC;
     args: string[];
   }) {
     if (this.onCommand({ user, channel, alias, msg })) {
@@ -393,11 +389,7 @@ export class CommandHandler {
 
   public hasPermission(
     user: IUser,
-    aliasOrCommand:
-      | string
-      | SubCommandContainer
-      | Command<HardCallback>
-      | undefined
+    aliasOrCommand: string | SubCommandContainer | CommandHC | undefined
   ) {
     if (typeof aliasOrCommand === "string") {
       aliasOrCommand = this.hardCommands[aliasOrCommand];
@@ -426,7 +418,7 @@ export class CommandHandler {
     return [alias, args];
   }
 
-  private parseArguments(command: Command<HardCallback>, args: string[]) {
+  private parseArguments(command: CommandHC, args: string[]) {
     const commandArgs = command.getArgs();
     if (!commandArgs) return;
 
@@ -492,7 +484,7 @@ export class CommandHandler {
     }
   }
 
-  public getUsageMessage(aliasOrCommand: string | Command<HardCallback>) {
+  public getUsageMessage(aliasOrCommand: string | CommandHC) {
     let command;
 
     if (aliasOrCommand instanceof Command) command = aliasOrCommand;

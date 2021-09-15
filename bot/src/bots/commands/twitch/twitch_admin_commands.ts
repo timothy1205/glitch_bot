@@ -1,10 +1,10 @@
 import { twitchBot } from "../../TwitchBot";
 import { twitchAPI } from "../../../twitch_api";
-import { Command, CommandArguments } from "../Command";
+import { CommandHCGeneric, CommandArguments } from "../Command";
 import { Permission } from "../CommandHandler";
 
 twitchBot.getCommandHandler()?.registerCommand(
-  new Command({
+  new CommandHCGeneric<[string, string | undefined]>({
     permission: Permission.OWNER,
     aliases: ["twitchinfo"],
     args: [
@@ -13,7 +13,7 @@ twitchBot.getCommandHandler()?.registerCommand(
     ],
     callback: async (caller, _channel, _alias, data, _bot) => {
       let helixUser;
-      const [id, type] = data as [string, string | undefined];
+      const [id, type] = data;
 
       if (!type || type === "id") {
         helixUser = await twitchAPI.users.getUserById(id);

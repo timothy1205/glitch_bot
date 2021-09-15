@@ -1,15 +1,15 @@
 import { CommandHandler } from "../CommandHandler";
-import { Command } from "../Command";
+import { CommandHCGeneric } from "../Command";
 import { Permission } from "../CommandHandler";
 import { CommandArguments } from "../Command";
 
 CommandHandler.queueDefaultCommand(
-  new Command({
+  new CommandHCGeneric<[string | undefined]>({
     permission: Permission.BROADCASTER,
     aliases: ["shutdown"],
     args: [{ arg: CommandArguments.STRING, name: "true", optional: true }],
     callback: async (caller, channel, _alias, data, bot) => {
-      const [confirm] = data as [string | undefined];
+      const [confirm] = data;
 
       if (!confirm || confirm !== "true") {
         bot.reply(

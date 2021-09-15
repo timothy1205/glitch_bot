@@ -1,7 +1,7 @@
 import { addAutoMessage, removeAutoMessage } from "./../../../auto_messages";
 import { getMongoStaticCommand } from "./../../../mongo/staticCommands";
 import { SubCommandContainer, CommandArguments } from "../Command";
-import { Command } from "../Command";
+import { CommandHCGeneric } from "../Command";
 import { CommandHandler, Permission } from "../CommandHandler";
 import { RegisterError } from "../CommandHandler";
 import {
@@ -12,7 +12,7 @@ import {
 CommandHandler.queueDefaultCommand(
   new SubCommandContainer(["command", "cmd"])
     .addCommand(
-      new Command({
+      new CommandHCGeneric<[string, string]>({
         permission: Permission.MOD,
         aliases: ["add"],
         args: [
@@ -20,7 +20,7 @@ CommandHandler.queueDefaultCommand(
           { arg: CommandArguments.STRING, name: "msg" },
         ],
         callback: async (caller, channel, _alias, data, bot) => {
-          const [aliases, message] = data as [string, string];
+          const [aliases, message] = data;
 
           const aliasArr = aliases.split(",");
           aliasArr.map((str) => str.replace(/ /g, ""));
@@ -40,12 +40,12 @@ CommandHandler.queueDefaultCommand(
       })
     )
     .addCommand(
-      new Command({
+      new CommandHCGeneric<[string]>({
         permission: Permission.MOD,
         aliases: ["remove", "rm"],
         args: [{ arg: CommandArguments.STRING, name: "alias" }],
         callback: async (caller, channel, _alias, data, bot) => {
-          const [alias] = data as [string];
+          const [alias] = data;
 
           try {
             CommandHandler.deleteStaticCommand(alias);
@@ -66,7 +66,7 @@ CommandHandler.queueDefaultCommand(
       })
     )
     .addCommand(
-      new Command({
+      new CommandHCGeneric<[string, string | undefined]>({
         permission: Permission.MOD,
         aliases: ["auto"],
         args: [
@@ -78,7 +78,7 @@ CommandHandler.queueDefaultCommand(
           },
         ],
         callback: async (caller, _channel, _alias, data, bot) => {
-          const [alias, inputState] = data as [string, string | undefined];
+          const [alias, inputState] = data;
 
           const staticCommand = CommandHandler.getStaticCommand(alias);
           const mongoStaticCommand = await getMongoStaticCommand(alias);
@@ -112,12 +112,12 @@ CommandHandler.queueDefaultCommand(
       })
     )
     .addCommand(
-      new Command({
+      new CommandHCGeneric<[string]>({
         permission: Permission.MOD,
         aliases: ["check"],
         args: [{ arg: CommandArguments.STRING, name: "alias" }],
         callback: async (caller, _channel, _alias, data, bot) => {
-          const [alias] = data as [string];
+          const [alias] = data;
 
           const mongoStaticCommand = await getMongoStaticCommand(alias);
 

@@ -8,14 +8,17 @@ export enum CommandArguments {
   USER,
 }
 
+// TODO: Is there a way to require Command instances to specify a generic?
+export type CommandHC = Command<HardCallback<any>>;
+
 export interface CommandArgumentWrapper {
   arg: CommandArguments;
   name: string;
   optional?: boolean;
 }
 
-export interface HardCallback {
-  (caller: IUser, channel: string, alias: string, data: any[], bot: IBot): void;
+export interface HardCallback<U> {
+  (caller: IUser, channel: string, alias: string, data: U, bot: IBot): void;
 }
 
 export interface StaticCallback {
@@ -66,7 +69,7 @@ export class Command<T> {
 export class SubCommandContainer {
   private aliases: string[];
   private commands: {
-    [alias: string]: SubCommandContainer | Command<HardCallback>;
+    [alias: string]: SubCommandContainer | CommandHC;
   } = {};
   private registered = false;
 
@@ -78,7 +81,7 @@ export class SubCommandContainer {
     return this.aliases;
   }
 
-  public addCommand(command: SubCommandContainer | Command<HardCallback>) {
+  public addCommand(command: SubCommandContainer | CommandHC) {
     if (command instanceof SubCommandContainer) {
       if (command.getRegistered())
         throw "Attempting to register a command that is already registered...";
@@ -109,3 +112,5 @@ export class SubCommandContainer {
     this.registered = status;
   }
 }
+
+export class CommandHCGeneric<T> extends Command<HardCallback<T>> {}
