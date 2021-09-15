@@ -14,6 +14,8 @@ import {
 } from "../Command";
 import { Permission } from "../CommandHandler";
 
+const DAY_MILLISECONDS = 86400000;
+
 twitchBot.getCommandHandler()?.registerCommand(
   new CommandHCGeneric<[string | undefined]>({
     permission: Permission.USER,
@@ -32,7 +34,7 @@ twitchBot.getCommandHandler()?.registerCommand(
 
         const now = new Date();
         const daysAgo = Math.round(
-          (now.getTime() - followDate.getTime()) / 86400000 // Day in ms
+          (now.getTime() - followDate.getTime()) / DAY_MILLISECONDS
         );
 
         twitchBot.reply(
