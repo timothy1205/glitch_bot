@@ -28,9 +28,7 @@ twitchBot.getCommandHandler()?.registerCommand(
 
       if (followUser) {
         const followDate = new Date(followUser.followDate);
-        const month = followDate.getMonth() + 1;
-        const day = followDate.getDate();
-        const year = followDate.getFullYear();
+        const followDateISO = followDate.toISOString().replace(/T[\s\S]+/g, "");
 
         const now = new Date();
         const daysAgo = Math.round(
@@ -41,7 +39,7 @@ twitchBot.getCommandHandler()?.registerCommand(
           caller,
           `${
             user ? `${user} has` : "you've"
-          } been a follower since ${month}/${day}/${year} (${daysAgo} day${
+          } been a follower since ${followDateISO} (${daysAgo} day${
             daysAgo === 1 ? "" : "s"
           } ago).`
         );
