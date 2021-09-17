@@ -28,6 +28,13 @@ jobs:
       - name: Run mocha tests
         working-directory: './bot'
         run: yarn test
+
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.6.0
+
+      - name: Run mocha mongo tests
+        working-directory: './bot'
+        run: yarn test-mongo
   deploy: 
     runs-on: ubuntu-latest
     needs: run-tests 
