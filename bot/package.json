@@ -6,8 +6,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon -e ts --exec \"yarn build && node ./dist/main.js\"",
-    "test": "cross-env NODE_ENV=test mocha --require ts-node/register --exclude ./test/mongo/**/*.spec.ts test/**/*.spec.ts",
-    "test-mongo": "cross-env NODE_ENV=test mocha --require ts-node/register test/mongo/**/*.spec.ts",
+    "test": "cross-env NODE_ENV=test mocha --require ts-node/register test/**/*.spec.ts",
+    "test-mongo": "cross-env NODE_ENV=test mocha --require ts-node/register test/mongo/**/*.specm.ts",
     "build": "tsc"
   },
   "nodemonConfig": {
