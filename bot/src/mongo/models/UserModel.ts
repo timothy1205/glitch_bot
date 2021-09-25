@@ -111,6 +111,7 @@ export const addWatchTime = async (id: IDTwitchOrDiscord, minutes: number) => {
   if (current === undefined && "twitchId" in id) {
     // No user found and we are working with twitch => create user
     await createUser({ twitchId: id.twitchId, points: minutes });
+    await setWatchTime(id, minutes);
     return minutes;
   }
 
