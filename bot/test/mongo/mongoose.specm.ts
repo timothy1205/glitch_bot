@@ -5,6 +5,7 @@ import {
   createUser,
   getOrCreateUser,
   getUser,
+  setStatBanned,
 } from "../../src/mongo/models/UserModel";
 
 describe("Mongoose Tests", () => {
@@ -88,6 +89,20 @@ describe("Mongoose Tests", () => {
         assert.strictEqual(user.minutesWatched, time);
 
         await user.delete();
+      });
+    });
+
+    describe("setStatBanned", () => {
+      it("Stat ban value saved and retrieved by subsequent getUser", async () => {
+        let user = await getUser({ twitchId: opts.twitchId });
+        assert.ok(user);
+
+        const currentStatBanned = user.statBanned;
+
+        await setStatBanned(opts.twitchId, !currentStatBanned);
+        user = await getUser({ twitchId: opts.twitchId });
+        assert.ok(user);
+        assert.strictEqual(user.statBanned, !currentStatBanned);
       });
     });
   });
