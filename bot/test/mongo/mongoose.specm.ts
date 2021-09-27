@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import {
   addWatchTime,
   createUser,
+  getOrCreateUser,
   getUser,
 } from "../../src/mongo/models/UserModel";
 
@@ -49,6 +50,19 @@ describe("Mongoose Tests", () => {
       it("Get by twitchId/discordId", async () => {
         assert.ok(await getUser({ twitchId: opts.twitchId }));
         assert.ok(await getUser({ discordId: opts.discordId }));
+      });
+    });
+
+    describe("getOrCreateUser", () => {
+      it("Get existing user", async () => {
+        assert.ok(await getOrCreateUser(opts.twitchId));
+      });
+
+      it("Get non-existing user (create)", async () => {
+        const twitchId = "1234567-2";
+        const user = await getOrCreateUser(twitchId);
+
+        assert.strictEqual(user.twitchId, twitchId);
       });
     });
 
