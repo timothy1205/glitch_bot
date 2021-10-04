@@ -44,7 +44,6 @@ describe("Mongoose Tests", () => {
         assert.strictEqual(user.points, undefined);
         assert.strictEqual(user.minutesWatched, 0);
         assert.strictEqual(user.usedFollowNotification, false);
-        assert.ok(new Date().valueOf() - user.followDate.valueOf() < 5000);
       });
     });
 
