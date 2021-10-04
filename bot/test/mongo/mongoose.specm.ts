@@ -5,6 +5,7 @@ import {
   createUser,
   getOrCreateUser,
   getUser,
+  setFollowed,
   setStatBanned,
 } from "../../src/mongo/models/UserModel";
 
@@ -104,6 +105,29 @@ describe("Mongoose Tests", () => {
         assert.ok(user);
         assert.strictEqual(user.statBanned, !currentStatBanned);
       });
+    });
+
+    describe("setFollowed", () => {
+      it("setFollow with no date input", async () => {
+        const twitchId = "1234567-3";
+
+        await setFollowed({ twitchId });
+        const user = await getUser({ twitchId });
+        assert.ok(user);
+        assert.strictEqual(user.usedFollowNotification, true);
+        assert.ok(new Date().valueOf() - user.followDate.valueOf() < 5000);
+      });
+    });
+
+    it("setFollow with custom date input", async () => {
+      const twitchId = "1234567-3";
+      const customDate = new Date();
+
+      await setFollowed({ twitchId }, customDate);
+      const user = await getUser({ twitchId });
+      assert.ok(user);
+      assert.strictEqual(user.usedFollowNotification, true);
+      assert.strictEqual(user.followDate.valueOf(), customDate.valueOf());
     });
   });
 });
