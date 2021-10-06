@@ -134,10 +134,9 @@ export const setFollowed = async (
   idOrUser: TwitchIDOrUser,
   date: Date = new Date()
 ) => {
-  let user: UserType;
+  let user;
   if ("twitchId" in idOrUser) {
-    //@ts-ignore
-    user = getOrCreateUser(idOrUser.twitchId) as UserType;
+    user = getOrCreateUser(idOrUser.twitchId);
   } else {
     user = idOrUser.user;
   }
