@@ -1,5 +1,8 @@
 import { addAutoMessage, removeAutoMessage } from "./../../../auto_messages";
-import { getMongoStaticCommand } from "./../../../mongo/staticCommands";
+import {
+  getMongoStaticCommand,
+  getMongoStaticCommands,
+} from "./../../../mongo/staticCommands";
 import {
   CommandArguments,
   CommandCategories,
@@ -141,6 +144,27 @@ CommandHandler.queueDefaultCommand(
           } else {
             bot.reply(caller, "invalid command!");
           }
+        },
+      })
+    )
+    .addCommand(
+      new CommandHCGeneric({
+        permission: Permission.USER,
+        aliases: ["list"],
+        category: FILE_CATEGORY,
+        callback: async (caller, _channel, _alias, _data, bot) => {
+          const mongoStaticCommands = await getMongoStaticCommands();
+          let commandString = "";
+
+          mongoStaticCommands.forEach((staticCommand) => {
+            commandString += `{[${staticCommand.aliases.join(",")}]: auto => ${
+              staticCommand.auto
+            }}, `;
+          });
+
+          commandString = commandString.slice(0, -1); // Remove last comma
+
+          bot.reply(caller, "Static Commands: " + commandString);
         },
       })
     )
