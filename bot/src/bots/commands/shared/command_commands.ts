@@ -149,7 +149,7 @@ CommandHandler.queueDefaultCommand(
     )
     .addCommand(
       new CommandHCGeneric({
-        permission: Permission.USER,
+        permission: Permission.MOD,
         aliases: ["list"],
         category: FILE_CATEGORY,
         callback: async (caller, _channel, _alias, _data, bot) => {
