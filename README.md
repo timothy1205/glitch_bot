@@ -14,7 +14,7 @@ mostly with twitch but easily extensible for other chat-related platforms.
 $ pacman -S docker docker-compose
 ```
 
-* Setup `bot/.env`` based on the template file.
+* Setup `bot/.env` based on the template file.
 * (Optional) Setup the docker-compose-prod.yml file
 * Run the bot
 
